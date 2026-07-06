@@ -171,6 +171,58 @@ p:last-child { margin-bottom: 0; }
   margin-top: 12px;
 }
 
+.field-note {
+  background: #F0F4FA;
+  border: 1px solid #D0DDEF;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+
+.field-note-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.field-note p {
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: #2A2926;
+  margin: 0;
+}
+
+.field-note p + p { margin-top: 12px; }
+
+.field-note blockquote {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--accent);
+  margin: 14px 0;
+  padding-left: 18px;
+  border-left: 2px solid #C0D2E8;
+}
+
+.field-note cite {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-top: 16px;
+}
+
+.field-note cite a { color: var(--accent); text-decoration: none; }
+.field-note cite a:hover { text-decoration: underline; }
+
 .diagram-wrap {
   margin: 48px -20px;
   background: var(--surface);
@@ -489,7 +541,7 @@ code {
 <div class="progress-bar" id="progressBar"></div>
 
 <div class="header">
-  <div class="header-label">Symantic DataXpress &nbsp;&middot;&nbsp; Data Modeling</div>
+  <div class="header-label">Semantic DataXpress &nbsp;&middot;&nbsp; Data Modeling</div>
   <h1>Why Your Semantic Layer Matters More Than <em>Your AI Agent</em></h1>
   <p class="header-sub">How I built a governed semantic model that eliminates silent analytics failures: the ones where the query succeeds and the number is wrong.</p>
   <div class="header-meta">Narendra Devarasetty &nbsp;&middot;&nbsp; 2026</div>
@@ -573,7 +625,7 @@ code {
 
       <!-- Model Layer -->
       <rect x="40" y="20" width="620" height="130" rx="8" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
-      <text x="350" y="44" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#2D5A8C" text-anchor="middle">MODEL LAYER &mdash; Business meaning</text>
+      <text x="350" y="44" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#2D5A8C" text-anchor="middle">MODEL LAYER: Business meaning</text>
       <line x1="52" y1="54" x2="648" y2="54" stroke="#D0DDEF" stroke-width="1"/>
 
       <text x="350" y="76" font-family="Inter,sans-serif" font-size="10.5" fill="#3D4A5C" text-anchor="middle">What "Net Revenue" means &middot; Which metrics are certified &middot; How to disambiguate "revenue"</text>
@@ -583,7 +635,7 @@ code {
 
       <!-- Physical Layer -->
       <rect x="40" y="190" width="620" height="130" rx="8" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
-      <text x="350" y="214" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#8C6D2D" text-anchor="middle">PHYSICAL LAYER &mdash; Warehouse truth</text>
+      <text x="350" y="214" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#8C6D2D" text-anchor="middle">PHYSICAL LAYER: Warehouse truth</text>
       <line x1="52" y1="224" x2="648" y2="224" stroke="#E5D5B8" stroke-width="1"/>
 
       <text x="350" y="246" font-family="Inter,sans-serif" font-size="10.5" fill="#6B6860" text-anchor="middle">Which tables exist &middot; Which columns they have &middot; What the data types are</text>
@@ -634,7 +686,7 @@ code {
 
   <p>In a parcel delivery business, a delivery has two consumers: the person who placed the order and the person who receives it. Both live in the same consumer table. "Show me revenue by consumer region" is ambiguous: which consumer?</p>
 
-  <p>And even once you pick the right consumer, their region may have changed over time. The consumer table has multiple historical rows per person. Joining without accounting for the time dimension silently shifts revenue between regions &mdash; or worse, multiplies it.</p>
+  <p>And even once you pick the right consumer, their region may have changed over time. The consumer table has multiple historical rows per person. Joining without accounting for the time dimension silently shifts revenue between regions, or worse, multiplies it.</p>
 
   <p>I solved both problems in the model. Every join between tables is explicitly declared with its cardinality, its join logic, and whether it requires time-windowed matching. The query generator does not infer joins from column names or foreign keys. If a join is not declared, it does not happen. For historically versioned dimensions, the system automatically resolves the correct row based on when the transaction occurred, not the current date. And when the same dimension joins in two different roles (ordering consumer vs. receiving consumer), the model names them separately, generates separate SQL aliases, and presents them as distinct choices in the UI. No ambiguity reaches the user.</p>
 
@@ -697,6 +749,18 @@ code {
   <div class="callout">
     <div class="callout-label">The cognitive shift</div>
     <p>Building a semantic model from scratch is authoring a document from a blank page. Reviewing a structured, evidence-backed draft is reviewing a pull request. The cognitive load is fundamentally different. The person doing the review still needs domain expertise. They still decide whether the proposed "net revenue" formula is right for their business. But they are correcting and approving, not creating from nothing.</p>
+  </div>
+
+  <p>The emphasis on <em>human review</em> is not a stylistic preference. It is the line between a model that reduces ambiguity and one that quietly encodes it. Anthropic learned this the hard way building their own self-service analytics platform.</p>
+
+  <div class="field-note">
+    <div class="field-note-label">From the field &middot; Anthropic</div>
+    <p>When Anthropic built self-service analytics on top of Claude, they made the governed semantic layer the non-negotiable foundation, not raw SQL, not a denormalized table:</p>
+    <blockquote>"The governed semantic layer is the mandatory default path for every data question: same numbers as [the BI tool], joins/grain/filters baked in."</blockquote>
+    <p>And critically, they tried exactly the shortcut this section warns against (letting an LLM build the semantic layer for them, end to end) and it backfired:</p>
+    <blockquote>"It produced plausible-looking definitions that encoded the very ambiguities we were trying to eliminate, and was net-negative on our evals versus a smaller, human-curated layer."</blockquote>
+    <p>The lesson lines up exactly with the cold-start approach above: AI is invaluable for generating the <em>draft</em>, but the human-curated layer is what makes the numbers trustworthy. Their own evals tell the same story: without a governed layer and the procedural context they wrap around it, Claude's analytics accuracy "didn't exceed 21%"; with it, "consistently above 95% in aggregate."</p>
+    <cite>Anthropic, <a href="https://claude.com/blog/how-anthropic-enables-self-service-data-analytics-with-claude">How Anthropic enables self-service data analytics with Claude</a></cite>
   </div>
 
   <div class="divider">&middot; &middot; &middot;</div>
@@ -763,12 +827,12 @@ code {
     <p>"A great model with a mediocre agent produces better answers than a mediocre model with a great agent."</p>
   </div>
 
-  <p style="text-align: center; margin-top: 48px; font-family: var(--sans); font-size: 14px; color: var(--muted);"><a href="symantic-data-modeling-article.html" style="color: var(--accent);">Read the full technical deep-dive</a>: entity inheritance, formula qualification, the complete query generation pipeline, and the full test architecture.</p>
+  <p style="text-align: center; margin-top: 48px; font-family: var(--sans); font-size: 14px; color: var(--muted);"><a href="semantic-layer-deep-dive.html" style="color: var(--accent);">Read the full technical deep-dive &rarr;</a><br>Entity inheritance, formula qualification, the complete query generation pipeline, and the full test architecture.</p>
 
 </div>
 
 <div class="footer">
-  <p>Symantic DataXpress &mdash; a governed semantic layer that transforms warehouse schemas into business truth.</p>
+  <p>Semantic DataXpress, a governed semantic layer that transforms warehouse schemas into business truth.</p>
   <p style="margin-top: 16px;"><a href="#" style="color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: 1px;">BACK TO TOP &uarr;</a></p>
 </div>
 

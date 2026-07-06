@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume: Narendra Devarasetty</title>
+<meta name="description" content="Resume of Narendra Devarasetty, Staff Data Engineer. 15+ years building large-scale data platforms at Airbnb, DoorDash, Dropbox, and Goldman Sachs.">
+<link rel="canonical" href="https://narendradevarasetty.com/resume.html">
+<meta property="og:title" content="Resume: Narendra Devarasetty">
+<meta property="og:description" content="Staff Data Engineer. 15+ years building large-scale data platforms at Airbnb, DoorDash, Dropbox, and Goldman Sachs.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://narendradevarasetty.com/resume.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #F4F3EF;
+    --border: #E5E4DC;
+    --ink: #1A1916;
+    --body: #2A2926;
+    --muted: #6B6860;
+    --accent: #2D5A8C;
+    --accent2: #4A7FB5;
+    --serif: 'Lora', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--sans);
+    font-size: 15.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 760px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  /* ---- top nav back to site ---- */
+  .crumb {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    margin-bottom: 48px;
+  }
+  .crumb a { color: var(--muted); }
+  .crumb a:hover { color: var(--accent); }
+
+  /* ---- header ---- */
+  header h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(30px, 5vw, 44px);
+    letter-spacing: -0.5px;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .role {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 10px;
+    letter-spacing: 0.3px;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .contact span[aria-hidden] { color: var(--border); }
+
+  .actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 9px 18px;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    border-radius: 4px;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  .btn:hover { background: var(--ink); color: var(--bg); text-decoration: none; }
+  .btn.ghost { border-color: var(--border); color: var(--muted); }
+  .btn.ghost:hover { border-color: var(--ink); color: var(--ink); background: transparent; }
+
+  /* ---- sections ---- */
+  section { margin-top: 60px; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .summary p {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--body);
+    max-width: 68ch;
+    text-align: justify;
+  }
+
+  /* ---- experience ---- */
+  .job { margin-bottom: 44px; }
+  .job:last-child { margin-bottom: 0; }
+
+  .job-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .job-head h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: -0.2px;
+    color: var(--ink);
+  }
+  .job-head h3 .team {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--muted);
+  }
+  .dates {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .job-title {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-top: 4px;
+    letter-spacing: 0.2px;
+  }
+  .loc { color: var(--muted); }
+
+  .job ul { list-style: none; margin-top: 18px; }
+  .job li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 12px;
+    max-width: 72ch;
+    line-height: 1.6;
+    text-align: justify;
+    hyphens: auto;
+  }
+  .job li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+  }
+  .job li strong { color: var(--ink); font-weight: 600; }
+  .metric {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ---- education ---- */
+  .edu {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .edu h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .edu p { color: var(--muted); font-size: 14.5px; margin-top: 3px; }
+
+  footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ---- print ---- */
+  @media print {
+    body { font-size: 11.5px; color: #222; background: #fff; }
+    .page { max-width: 100%; padding: 0; }
+    .crumb, .actions, footer .no-print { display: none; }
+    section { margin-top: 28px; }
+    .job { margin-bottom: 22px; page-break-inside: avoid; }
+    .job li { margin-bottom: 5px; }
+    .metric { background: none; }
+    a { color: #222; }
+    .contact::after { content: "978-674-9067"; font-size: inherit; }
+  }
+
+  @media (max-width: 560px) {
+    .job-head, .edu { flex-direction: column; gap: 2px; }
+    .page { padding-top: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="index.html">← narendradevarasetty.com</a>
+  </nav>
+
+  <header>
+    <h1>Narendra Devarasetty</h1>
+    <p class="role">Staff Data Engineer · Data Platforms · AI for Data</p>
+    <div class="contact">
+      <a href="mailto:Naren9067@gmail.com">Naren9067@gmail.com</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://www.linkedin.com/in/narendra-devarasetty/">LinkedIn</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/narendradevarasetty">GitHub</a>
+      <span aria-hidden="true">·</span>
+      <span>Tracy, CA</span>
+    </div>
+    <div class="actions">
+      <a class="btn" href="NarendraDevarasetty_Resume.pdf" download>Download PDF</a>
+      <a class="btn ghost" href="javascript:window.print()">Print this page</a>
+    </div>
+  </header>
+
+  <section class="summary" aria-labelledby="summary-label">
+    <h2 class="section-label" id="summary-label">Summary</h2>
+    <p>Seasoned Data Engineer with 15+ years of experience designing and re-architecting large-scale data platforms across product, finance, and ML. Proven track record of owning business-critical data systems end-to-end, from modeling and pipelines to reliability and cost efficiency, at companies operating at massive scale. Known for translating ambiguous business questions into durable, production-grade data systems that enable fast, confident decision-making.</p>
+  </section>
+
+  <section aria-labelledby="experience-label">
+    <h2 class="section-label" id="experience-label">Experience</h2>
+
+    <article class="job">
+      <div class="job-head">
+        <h3>Airbnb <span class="team">· BizTech Data Engineering</span></h3>
+        <span class="dates">Mar 2025 – Present</span>
+      </div>
+      <p class="job-title">Staff Data Engineer <span class="loc">· San Francisco, CA</span></p>
+      <ul>
+        <li><strong>Re-architected Unit Economics platform</strong>, consolidating fragmented revenue, cost, and contribution-margin logic into canonical datasets powering finance close, forecasting, and product analytics across <span class="metric">10+ orgs</span>.</li>
+        <li><strong>Delivered GPU efficiency initiative in 4 weeks</strong>, partnering with Cloud Infrastructure to analyze <span class="metric">$1.13M/month GPU spend</span> and identify <span class="metric">35–50% cost reduction potential ($400K–$600K/month)</span> across 3,000+ workloads.</li>
+        <li>Served as <strong>technical owner for cross-functional data alignment</strong>, translating ambiguous business questions into durable, production-grade data models adopted by Finance, Product, and ML teams.</li>
+      </ul>
+    </article>
+
+    <article class="job">
+      <div class="job-head">
+        <h3>DoorDash <span class="team">· Core Data Engineering</span></h3>
+        <span class="dates">May 2021 – Mar 2025</span>
+      </div>
+      <p class="job-title">Staff Software Engineer, Data <span class="loc">· San Francisco, CA</span></p>
+      <ul>
+        <li><strong>Owned backend architecture for AI-driven voice ordering system</strong> delivered in <span class="metric">40 days</span>, including order-cart construction, LLM-optimized menu modeling, and inference integration for a high-visibility client demo.</li>
+        <li>Built <strong>synthetic data generation pipelines</strong> enabling continuous fine-tuning of GPT-3.5 and LLaMA models, improving order accuracy and accelerating iteration without reliance on scarce real-world conversations.</li>
+        <li>Built <strong>LLM-powered data discovery and SQL generation tooling</strong> used by <span class="metric">100+ analysts</span>, reducing ad-hoc analysis time by abstracting schema complexity through metadata and semantic search.</li>
+        <li>Designed a <strong>config-driven metrics platform</strong> powering <span class="metric">1,000+ Tier-0 metrics</span> across dashboards, experimentation, and segmentation, eliminating bespoke SQL and standardizing metric logic.</li>
+        <li>Built and scaled a <strong>next-generation ETL platform</strong> (Spark, Snowflake) with CI/CD, testing, observability, SLA enforcement, RBAC, and data quality checks, adopted by <span class="metric">20+ teams</span> and scaled to <span class="metric">2,500+ production workflows</span>.</li>
+        <li>Led <strong>Data Reliability Engineering (DRE)</strong> sustaining <span class="metric">2+ years of SLA compliance</span> for 150+ Tier-0 metrics across 400+ upstream tables, reducing critical dashboard downtime by 3–4 hours.</li>
+        <li><strong>Owned quarterly earnings metrics</strong> and partnered with Finance, Product, and PwC to support audit and certification requirements.</li>
+        <li>Led <strong>company-wide data engineering cost efficiency initiative</strong>, delivering <span class="metric">$2M in savings in H2 2024</span> and defining a 2-year roadmap for sustainable cost governance.</li>
+      </ul>
+    </article>
+
+    <article class="job">
+      <div class="job-head">
+        <h3>Dropbox <span class="team">· Central Data Engineering</span></h3>
+        <span class="dates">Jun 2019 – May 2021</span>
+      </div>
+      <p class="job-title">Lead Data Engineer <span class="loc">· San Francisco, CA</span></p>
+      <ul>
+        <li>Built <strong>User &amp; Team 360 canonical datasets</strong> with <span class="metric">400+ attributes</span>, establishing a single source of truth supporting Product and Finance analytics across <span class="metric">700M+ users</span>.</li>
+        <li>Created <strong>Dropbox Usage DataMart</strong> modeling file activity (adds, updates, shares, collaboration) over 1-day, 7-day, and 28-day rolling windows, ingesting and aggregating <span class="metric">billions of file events per day</span> at scale.</li>
+        <li>Built <strong>Finance DataMart for User and Team ARR</strong>, integrating dimensional entities to deliver trusted financial reporting.</li>
+        <li>Re-engineered <strong>large-scale filesystem usage pipelines</strong> using Spark, reducing ETL runtimes by <span class="metric">10+ hours</span>.</li>
+        <li>Developed <strong>reusable Airflow operators</strong> for Hive/Spark workloads with built-in validation and structured logging, improving pipeline reliability and alerting.</li>
+      </ul>
+    </article>
+
+    <article class="job">
+      <div class="job-head">
+        <h3>Goldman Sachs <span class="team">· SecDiv Data Platform</span></h3>
+        <span class="dates">Dec 2014 – May 2019</span>
+      </div>
+      <p class="job-title">Data Engineer <span class="loc">· New York, NY</span></p>
+      <ul>
+        <li>Built one of <strong>Goldman Sachs' first Hadoop-based data lake platforms</strong>, leveraging HDFS, Spark, Scala, and Pig to modernize large-scale analytics and batch processing.</li>
+        <li>Designed <strong>automated ETL frameworks</strong> using Spark/Scala and Python, significantly improving data processing efficiency and operational reliability.</li>
+        <li>Migrated <span class="metric">350+ legacy BI reports</span> to the modern data platform, optimizing batch job runtimes by 2+ hours and reducing maintenance overhead.</li>
+        <li>Led <strong>data onboarding initiatives to AWS and Snowflake</strong>, enabling early cloud adoption and scalable analytics workflows within SecDiv.</li>
+      </ul>
+    </article>
+
+    <article class="job">
+      <div class="job-head">
+        <h3>Infosys <span class="team">· Fixed Income Data Platform</span></h3>
+        <span class="dates">Jul 2007 – Nov 2014</span>
+      </div>
+      <p class="job-title">Data Engineer <span class="loc">· Nashua, NH</span></p>
+      <ul>
+        <li>Consolidated <span class="metric">500+ batch jobs into 25+</span>, improving reliability and maintainability of fixed-income data pipelines.</li>
+        <li>Built real-time <strong>Trade DataMart with 5-minute SLA</strong>, implemented Oracle VPD for data security, and led early Hadoop POCs for scalable analytics.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section aria-labelledby="education-label">
+    <h2 class="section-label" id="education-label">Education</h2>
+    <div class="edu">
+      <div>
+        <h3>Anna University, India</h3>
+        <p>Bachelor of Engineering, Electronics and Communication</p>
+      </div>
+      <span class="dates">May 2003 – Apr 2007</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Narendra Devarasetty</span>
+    <span class="no-print"><a href="index.html">Home</a> · <a href="articles/why-your-semantic-layer-matters.html">Writing</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

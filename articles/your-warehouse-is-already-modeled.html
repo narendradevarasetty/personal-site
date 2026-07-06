@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Warehouse Is Already Modeled. Stop Re-Modeling It.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #FAFAF8;
+  --surface: #F4F3EF;
+  --border: #E5E4DC;
+  --text: #1A1916;
+  --muted: #6B6860;
+  --accent: #2D5A8C;
+  --accent2: #4A7FB5;
+  --green: #2D6A4F;
+  --red: #8C2D2D;
+  --warm: #8C6D2D;
+  --serif: 'Lora', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+.header {
+  background: var(--text);
+  color: #F4F3EF;
+  padding: 80px 24px 72px;
+  text-align: center;
+}
+
+.header-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.5);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header-label::before, .header-label::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: rgba(244,243,239,0.3);
+}
+
+.header h1 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  max-width: 860px;
+  margin: 0 auto 24px;
+  color: #F4F3EF;
+}
+
+.header h1 em { font-style: italic; color: #93B8D4; }
+
+.header-sub {
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 300;
+  color: rgba(244,243,239,0.65);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.4);
+  letter-spacing: 1px;
+}
+
+.reading-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.35);
+  letter-spacing: 1px;
+  margin-top: 12px;
+}
+
+.article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 24px 120px;
+}
+
+.lead {
+  font-size: 22px;
+  line-height: 1.65;
+  color: #2A2926;
+  font-weight: 400;
+  margin-bottom: 48px;
+  font-style: italic;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  margin: 40px 0 16px;
+  line-height: 1.25;
+}
+
+h3 {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 40px 0 16px;
+  color: var(--text);
+}
+
+p { margin-bottom: 24px; color: #2A2926; text-align: justify; }
+p:last-child { margin-bottom: 0; }
+
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: 4px 0 4px 28px;
+  margin: 48px 0;
+}
+
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent);
+  font-weight: 400;
+  margin: 0;
+}
+
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px 32px;
+  margin: 40px 0;
+}
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.callout p {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+}
+
+.callout p + p { margin-top: 12px; }
+
+.divider {
+  text-align: center;
+  margin: 32px 0;
+  color: var(--border);
+  letter-spacing: 12px;
+  font-size: 14px;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 16px;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.user-prompt {
+  background: #0F0F1A;
+  border-radius: 10px;
+  padding: 24px 32px;
+  margin: 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-prompt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2D5A8C, #4A7FB5, #93B8D4);
+}
+
+.user-prompt-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 12px;
+}
+
+.user-prompt p {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 400;
+  color: #F4F3EF;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.user-prompt .metric-name {
+  font-family: var(--serif);
+  font-style: italic;
+  color: #93B8D4;
+  font-weight: 500;
+}
+
+.key-takeaways {
+  background: #F0F4FA;
+  border: 1px solid #D0DDEF;
+  border-radius: 8px;
+  padding: 32px 36px 28px;
+  margin: 0 0 48px;
+}
+
+.key-takeaways-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.key-takeaways ul { list-style: none; padding: 0; margin: 0; }
+
+.key-takeaways ul li {
+  font-family: var(--sans);
+  padding: 18px 0;
+  border-bottom: 1px solid #D7E2F0;
+  text-align: left;
+  display: block;
+}
+
+.key-takeaways ul li:first-child { padding-top: 4px; }
+.key-takeaways ul li:last-child { border-bottom: none; padding-bottom: 0; }
+.key-takeaways ul li::before { content: none; }
+
+.key-takeaways .takeaway-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.1px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.key-takeaways .takeaway-body {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #2A2926;
+  font-weight: 400;
+}
+
+.toc {
+  margin: 40px 0 48px;
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.toc-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: toc-counter;
+}
+
+.toc ol li {
+  counter-increment: toc-counter;
+  padding: 5px 0;
+}
+
+.toc ol li a {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.toc ol li a:hover { color: var(--accent); }
+
+.toc ol li a::before {
+  content: counter(toc-counter, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* Three-up code comparison */
+.code-trio {
+  margin: 40px -20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.code-block {
+  background: #0F0F1A;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.code-block-header {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.55);
+  background: rgba(255,255,255,0.04);
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-block-header .tool-name { color: #93B8D4; font-weight: 500; }
+
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #E8E6E0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code-block pre .kw { color: #C792EA; }
+.code-block pre .str { color: #C3E88D; }
+.code-block pre .com { color: #6B6860; font-style: italic; }
+.code-block pre .num { color: #F78C6C; }
+.code-block pre .id { color: #82AAFF; }
+
+/* Pattern table */
+.pattern-table {
+  margin: 40px -20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--sans);
+  font-size: 14px;
+}
+
+.pattern-row {
+  display: grid;
+  grid-template-columns: 32px 1.6fr 2fr 2fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pattern-row:last-child { border-bottom: none; }
+.pattern-row.head {
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pattern-row > div {
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+.pattern-row > div:last-child { border-right: none; }
+.pattern-row .num-cell {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  padding-right: 0;
+  border-right: none;
+  text-align: right;
+}
+.pattern-row .pattern-name { font-weight: 600; color: var(--text); }
+.pattern-row .pattern-hard { color: #2A2926; }
+.pattern-row .pattern-fix { color: var(--green); font-size: 13.5px; }
+
+/* Side-by-side query */
+.query-sxs {
+  margin: 40px -20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.query-pane {
+  background: #0F0F1A;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.query-pane.input { background: #14142A; }
+
+.query-pane-header {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.6);
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.query-pane pre {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #E8E6E0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.query-pane pre .kw { color: #C792EA; }
+.query-pane pre .fn { color: #82AAFF; }
+.query-pane pre .com { color: #6B6860; font-style: italic; }
+.query-pane pre .str { color: #C3E88D; }
+.query-pane pre .num { color: #F78C6C; }
+
+/* Stop-doing list */
+.stop-list {
+  margin: 32px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.stop-list li:last-child { border-bottom: none; }
+
+.stop-list .strike {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--red);
+  text-decoration: line-through;
+  flex-shrink: 0;
+  width: 14px;
+}
+
+/* Diagram */
+.diagram-wrap {
+  margin: 48px -20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 16px 24px 0;
+}
+
+.diagram-wrap svg { display: block; width: 100%; height: auto; }
+
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.footer p {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  z-index: 1000;
+  transition: width 0.1s linear;
+}
+
+@media (max-width: 640px) {
+  .pattern-row { grid-template-columns: 28px 1fr; }
+  .pattern-row > div:nth-child(3),
+  .pattern-row > div:nth-child(4) { grid-column: 2; padding-top: 4px; }
+  .pattern-row.head > div:nth-child(3),
+  .pattern-row.head > div:nth-child(4) { display: none; }
+  .diagram-wrap { margin: 40px 0; }
+  .code-trio, .query-sxs, .pattern-table { margin: 32px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="header">
+  <div class="header-label">Semantic DataXpress &nbsp;&middot;&nbsp; Data Modeling</div>
+  <h1>Your Warehouse Is Already Modeled. <em>Stop Re-Modeling It.</em></h1>
+  <p class="header-sub">The hidden tax of modern semantic layers, and what it looks like to skip the bill.</p>
+  <div class="header-meta">Narendra Devarasetty &nbsp;&middot;&nbsp; 2026</div>
+  <div class="reading-time">8 min read</div>
+</div>
+
+<div class="article">
+
+  <p class="lead">Every modern semantic layer arrives with the same promise: one place for metric definitions, governed analytics, self-serve for the business. Six months in, the same thing happens at every company: the data team's biggest job is no longer the warehouse. It is the <em>second</em> model they built on top of it.</p>
+
+  <div class="key-takeaways">
+    <div class="key-takeaways-label">The difference, in one line</div>
+    <ul>
+      <li>
+        <span class="takeaway-title">The architectural divide</span>
+        <span class="takeaway-body">Most semantic layers push correctness onto the modeler at <em>author-time</em>. DataXpress pushes it into the generator at <em>runtime</em>. Every other difference descends from this.</span>
+      </li>
+      <li>
+        <span class="takeaway-title">Other tools are vocabularies</span>
+        <span class="takeaway-body">They give you a way to describe a warehouse you have to reshape to fit them: flat marts, derived tables, pre-aggregations, "as-of" denormalizations.</span>
+      </li>
+      <li>
+        <span class="takeaway-title">DataXpress is a compiler</span>
+        <span class="takeaway-body">It reads the warehouse you already have (SCD2, periodic snapshots, accumulating snapshots, journals, bridges) and generates correct SQL against it.</span>
+      </li>
+      <li>
+        <span class="takeaway-title">The hard problems are runtime, not modeling</span>
+        <span class="takeaway-body">Fan-out, allocation, multi-hop, SCD2, chasm-trap detection: solved by the generator. Not pushed back into your modeling layer as a mart you have to maintain.</span>
+      </li>
+      <li>
+        <span class="takeaway-title">What you stop maintaining</span>
+        <span class="takeaway-body">Flat marts. Derived-table lifecycles. Pre-aggregation refresh schedules. Drift between schema and model. A semantic-layer team.</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">In this article</div>
+    <ol>
+      <li><a href="#tax">The hidden tax of modern semantic layers</a></li>
+      <li><a href="#schema-mismatch">The schema they expect vs the warehouse you actually have</a></li>
+      <li><a href="#architectural-divide">The architectural divide: author-time vs runtime</a></li>
+      <li><a href="#real-cost">What the tax actually costs you</a></li>
+      <li><a href="#bet">A different bet: meet the warehouse where it is</a></li>
+      <li><a href="#hard-problems">The problems most layers punt on</a></li>
+      <li><a href="#head-to-head">The same hard case, two ways</a></li>
+      <li><a href="#example">What this looks like in practice</a></li>
+      <li><a href="#stop">What you stop doing</a></li>
+    </ol>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 1. THE HIDDEN TAX              -->
+  <!-- ============================== -->
+
+  <h2 id="tax">The hidden tax of modern semantic layers</h2>
+
+  <p>Pick any data team that has rolled out a semantic layer in the last five years. Ask them how much of their roadmap, in any given quarter, is spent on the layer itself. The answer is almost always <em>most of it</em>. Building views. Building the semantic models the tool needs. Building the marts those tools needed. Reconciling drift between the warehouse schema and whatever idiom the tool insists on.</p>
+
+  <p>The promise was governed self-serve. The reality is a parallel modeling project: a team that used to maintain warehouse transformation models now also maintains a second set of semantic-layer definitions, plus the persistent derived tables and aggregate tables those tools demanded to perform acceptably. The semantic layer was supposed to compress the work. It often doubles it.</p>
+
+  <p>This is not a critique of any particular tool. The pattern is uniform across them, because they all share an architectural assumption: <strong>that you will re-describe your warehouse in the tool's idiom</strong>. The shape of your warehouse, the patterns your data engineers chose for good reasons, becomes friction the layer must work around.</p>
+
+  <div class="callout">
+    <div class="callout-label">The tax is not the YAML</div>
+    <p>If the cost was just writing config, every team would happily pay it. The tax is the second-order work: the flat marts you build because the tool can't handle a fan-out, the derived tables you maintain because performance dropped, the duplicated metric logic when one team needs a slightly different lens, the on-call rotation for a system whose cache has its own opinions about correctness.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+
+  <!-- ============================== -->
+  <!-- 2.6 SCHEMA MISMATCH             -->
+  <!-- ============================== -->
+
+  <h2 id="schema-mismatch">The schema they expect vs the warehouse you actually have</h2>
+
+  <p>There is a reason every semantic-layer tutorial uses the same example. One central fact table, surrounded by dimension tables. Clean many-to-one joins. One grain per fact. One row per entity in each dim. The textbook star schema. Every product screenshot, every getting-started page, every example project: they all look like this.</p>
+
+  <p>Real warehouses do not look like this.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">The textbook vs the warehouse</div>
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" style="padding:28px 32px;background:#F4F3EF;">
+      <defs>
+        <style>
+          .lbl { font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 600; }
+          .lbl-sm { font-family: 'Inter', sans-serif; font-size: 9.5px; font-weight: 500; }
+          .title { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; }
+          .sub { font-family: 'Inter', sans-serif; font-size: 9.5px; font-style: italic; }
+        </style>
+      </defs>
+
+      <!-- ===== LEFT: Star schema ===== -->
+      <text x="170" y="24" class="title" fill="#2D5A8C" text-anchor="middle">STAR SCHEMA</text>
+      <text x="170" y="40" class="sub" fill="#6B6860" text-anchor="middle">What the tools were designed against</text>
+
+      <!-- center fact -->
+      <rect x="130" y="135" width="80" height="44" rx="4" fill="#2D5A8C" stroke="#2D5A8C"/>
+      <text x="170" y="161" class="lbl" fill="#F4F3EF" text-anchor="middle">FACT</text>
+
+      <!-- 4 dims -->
+      <rect x="60" y="70" width="60" height="32" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="90" y="90" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">DIM</text>
+      <rect x="220" y="70" width="60" height="32" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="250" y="90" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">DIM</text>
+      <rect x="60" y="210" width="60" height="32" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="90" y="230" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">DIM</text>
+      <rect x="220" y="210" width="60" height="32" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="250" y="230" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">DIM</text>
+
+      <!-- clean radial lines -->
+      <line x1="120" y1="102" x2="150" y2="135" stroke="#A89A7E" stroke-width="1"/>
+      <line x1="220" y1="102" x2="190" y2="135" stroke="#A89A7E" stroke-width="1"/>
+      <line x1="120" y1="210" x2="150" y2="179" stroke="#A89A7E" stroke-width="1"/>
+      <line x1="220" y1="210" x2="190" y2="179" stroke="#A89A7E" stroke-width="1"/>
+
+      <text x="170" y="282" class="sub" fill="#5A7A9E" text-anchor="middle">One fact. One grain.</text>
+      <text x="170" y="296" class="sub" fill="#5A7A9E" text-anchor="middle">Clean many-to-one joins.</text>
+
+      <!-- ===== Divider ===== -->
+      <line x1="360" y1="50" x2="360" y2="280" stroke="#D5D2C6" stroke-width="1" stroke-dasharray="3,4"/>
+
+      <!-- ===== RIGHT: Real warehouse ===== -->
+      <text x="540" y="24" class="title" fill="#8C2D2D" text-anchor="middle">YOUR WAREHOUSE</text>
+      <text x="540" y="40" class="sub" fill="#6B6860" text-anchor="middle">What you actually have</text>
+
+      <!-- Facts row 1 -->
+      <rect x="395" y="64" width="92" height="28" rx="3" fill="#2D5A8C" stroke="#2D5A8C"/>
+      <text x="441" y="82" class="lbl-sm" fill="#F4F3EF" text-anchor="middle">Transaction Fact</text>
+
+      <rect x="497" y="64" width="92" height="28" rx="3" fill="#4A7FB5" stroke="#2D5A8C"/>
+      <text x="543" y="82" class="lbl-sm" fill="#F4F3EF" text-anchor="middle">Event Stream</text>
+
+      <rect x="599" y="64" width="92" height="28" rx="3" fill="#2D5A8C" stroke="#2D5A8C" stroke-dasharray="3,2"/>
+      <text x="645" y="82" class="lbl-sm" fill="#F4F3EF" text-anchor="middle">Journal Fact</text>
+
+      <!-- Facts row 2 -->
+      <rect x="395" y="100" width="92" height="28" rx="3" fill="#4A7FB5" stroke="#2D5A8C"/>
+      <text x="441" y="118" class="lbl-sm" fill="#F4F3EF" text-anchor="middle">Line-item Fact</text>
+
+      <rect x="497" y="100" width="92" height="28" rx="3" fill="#2D5A8C" stroke="#2D5A8C" stroke-dasharray="2,2"/>
+      <text x="543" y="118" class="lbl-sm" fill="#F4F3EF" text-anchor="middle">Accumulating</text>
+
+      <rect x="599" y="100" width="92" height="28" rx="3" fill="#93B8D4" stroke="#2D5A8C"/>
+      <text x="645" y="118" class="lbl-sm" fill="#1A1916" text-anchor="middle">Aggregate</text>
+
+      <!-- gap -->
+      <line x1="395" y1="148" x2="691" y2="148" stroke="#E5E4DC" stroke-width="0.5"/>
+
+      <!-- Dims row 1 -->
+      <rect x="395" y="160" width="92" height="28" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="441" y="178" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">Regular Dim</text>
+
+      <rect x="497" y="160" width="92" height="28" rx="3" fill="#FFF8F0" stroke="#C4A26E" stroke-dasharray="3,2"/>
+      <text x="543" y="178" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">SCD Type 2</text>
+
+      <rect x="599" y="160" width="92" height="28" rx="3" fill="#FBEFD8" stroke="#C4A26E"/>
+      <text x="645" y="178" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">Snapshot Dim</text>
+
+      <!-- Dims row 2 -->
+      <rect x="395" y="196" width="92" height="28" rx="3" fill="#FBEFD8" stroke="#C4A26E"/>
+      <text x="441" y="214" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">Periodic Snap</text>
+
+      <rect x="497" y="196" width="92" height="28" rx="3" fill="#FFF8F0" stroke="#C4A26E" stroke-dasharray="2,2"/>
+      <text x="543" y="214" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">Bridge (M:N)</text>
+
+      <rect x="599" y="196" width="92" height="28" rx="3" fill="#FFF8F0" stroke="#C4A26E"/>
+      <text x="645" y="214" class="lbl-sm" fill="#8C6D2D" text-anchor="middle">State Trans.</text>
+
+      <!-- legend dots -->
+      <text x="540" y="252" class="sub" fill="#8C2D2D" text-anchor="middle">Different grains. Different temporality.</text>
+      <text x="540" y="266" class="sub" fill="#8C2D2D" text-anchor="middle">Different join semantics. All in the same warehouse.</text>
+    </svg>
+  </div>
+
+  <p>A serious warehouse contains a mix of physical patterns, each chosen for a reason. Some dimensions are current-state lookups; others are historically versioned with effective dates; others are daily snapshots. Some facts are clean transactions; others are append-only journals with signed amounts; others are accumulating snapshots that update in place. Each pattern was selected because it is the right shape for the data it holds, and each pattern carries different rules about how it can be queried safely.</p>
+
+  <p><strong>Dimensions are not all the same kind of thing.</strong></p>
+
+  <div class="pattern-table">
+    <div class="pattern-row head">
+      <div></div>
+      <div>Dimension flavor</div>
+      <div>What it captures</div>
+      <div>What semantic layers assume</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">01</div>
+      <div class="pattern-name">Regular (Type 1)</div>
+      <div class="pattern-hard">Current state. One row per entity. Overwritten on change.</div>
+      <div class="pattern-fix">The default. Works fine.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">02</div>
+      <div class="pattern-name">SCD Type 2</div>
+      <div class="pattern-hard">Full history. Multiple rows per entity with <code>effective_from</code> / <code>effective_to</code>.</div>
+      <div class="pattern-fix">Flattened upstream into "as-of" marts. The temporality is lost.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">03</div>
+      <div class="pattern-name">Periodic snapshot dim</div>
+      <div class="pattern-hard">State captured daily/weekly. Composite grain (date &times; entity).</div>
+      <div class="pattern-fix">Reshaped into a current-state lookup, or double-counted.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">04</div>
+      <div class="pattern-name">Bridge</div>
+      <div class="pattern-hard">Many-to-many resolution between two entities.</div>
+      <div class="pattern-fix">Structural fan-out: usually denormalized away.</div>
+    </div>
+  </div>
+
+  <p><strong>Facts are not all the same kind of thing either.</strong></p>
+
+  <div class="pattern-table">
+    <div class="pattern-row head">
+      <div></div>
+      <div>Fact flavor</div>
+      <div>What it captures</div>
+      <div>What semantic layers assume</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">01</div>
+      <div class="pattern-name">Transaction fact</div>
+      <div class="pattern-hard">One row per business event. Single grain. Additive measures.</div>
+      <div class="pattern-fix">The default. Works fine.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">02</div>
+      <div class="pattern-name">Line-item fact</div>
+      <div class="pattern-hard">Sub-grain of a transaction. One row per line, not per order.</div>
+      <div class="pattern-fix">Joined onto the header into a wide mart to escape fan-out.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">03</div>
+      <div class="pattern-name">Event / activity stream</div>
+      <div class="pattern-hard">High-volume sub-second events. Semi-additive.</div>
+      <div class="pattern-fix">Pre-aggregated upstream into a daily summary.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">04</div>
+      <div class="pattern-name">Journal / ledger</div>
+      <div class="pattern-hard">Append-only with signed amounts and CASE-based metrics.</div>
+      <div class="pattern-fix">Pre-aggregated. CASE semantics flatten poorly.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">05</div>
+      <div class="pattern-name">Accumulating snapshot</div>
+      <div class="pattern-hard">One row per entity, milestone columns, updated as state advances.</div>
+      <div class="pattern-fix">Treated as a transaction fact. Milestone semantics lost.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">06</div>
+      <div class="pattern-name">Periodic snapshot fact</div>
+      <div class="pattern-hard">Fact-level state captured daily/weekly. Composite grain.</div>
+      <div class="pattern-fix">Treated as a transaction fact. Double-counted across snapshots.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">07</div>
+      <div class="pattern-name">Aggregate / rollup</div>
+      <div class="pattern-hard">Pre-rolled, often with row-exclusion restrictions.</div>
+      <div class="pattern-fix">Routed into without checking eligibility: silent wrong numbers.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">08</div>
+      <div class="pattern-name">State transition fact</div>
+      <div class="pattern-hard">Status-from / status-to events.</div>
+      <div class="pattern-fix">Treated as a generic event stream; transitions lose meaning.</div>
+    </div>
+  </div>
+
+  <p>When the tool assumes star and the warehouse is a mix, something has to give. The thing that gives is always the warehouse. The SCD2 dim gets flattened into an "as-of" mart. The journal gets pre-aggregated into a daily summary. The line-item fact gets joined onto the order header into a wide denormalized table. The snapshot dim gets reshaped into a current-state lookup. Each reshape is a small, irreversible loss of fidelity, paid for by the data engineering team in marts they did not want to build, refresh schedules they did not want to maintain, and a warehouse that quietly stops looking like itself.</p>
+
+  <div class="pull-quote">
+    <p>"Other tools assume a star. Real warehouses are a mix. The mismatch is paid for by the warehouse."</p>
+  </div>
+
+  <p>DataXpress does something different. It lets each table be what it is. The model declares the type of each table (current-state dim, SCD Type 2 dim, transaction fact, journal, snapshot, accumulating, bridge) and the compiler queries each one correctly. No "as-of" mart for the SCD2. No daily summary for the journal. No wide denormalization for the line-items. The warehouse stays a mix because it <em>is</em> a mix.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 2.5 THE REAL DIFFERENCE         -->
+  <!-- ============================== -->
+
+  <h2 id="architectural-divide">The architectural divide: author-time vs runtime</h2>
+
+  <p>Strip away the YAML and the marketing language, and every semantic layer answers one question: <em>where does the burden of correctness live?</em> The answer is the architectural divide. It is also the cleanest way to see what makes DataXpress different.</p>
+
+  <div class="pattern-table">
+    <div class="pattern-row head">
+      <div></div>
+      <div>Concern</div>
+      <div>Most semantic layers</div>
+      <div>DataXpress</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">01</div>
+      <div class="pattern-name">Where correctness is authored</div>
+      <div class="pattern-hard">At <strong>author-time</strong>. The modeler writes joins, aggregate-awareness rules, derived tables, and metric variants ahead of every question users might ask.</div>
+      <div class="pattern-fix">At <strong>runtime</strong>. The generator inspects the question, classifies the joins, and rewrites the SQL safely on the fly.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">02</div>
+      <div class="pattern-name">Fan-out joins</div>
+      <div class="pattern-hard">Author's responsibility. Build a flat mart, write a symmetric-aggregate workaround, or restrict the explore.</div>
+      <div class="pattern-fix">Generator's responsibility. Detected via BFS over active joins; the offending fact is rewritten as an inline pre-agg subquery.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">03</div>
+      <div class="pattern-name">SCD2 temporal joins</div>
+      <div class="pattern-hard">Usually flattened upstream into an "as-of" mart. The semantic layer sees a current-state dim.</div>
+      <div class="pattern-fix">First-class. Relationship declares <code>type: scd</code>; generator emits the temporal predicate against the fact date.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">04</div>
+      <div class="pattern-name">Multi-hop dimensions</div>
+      <div class="pattern-hard">Author declares the path explicitly per explore, or denormalizes the dim onto the fact.</div>
+      <div class="pattern-fix">BFS over the relationship graph resolves the path. No path declaration required.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">05</div>
+      <div class="pattern-name">Allocation across grains</div>
+      <div class="pattern-hard">Not a concept. The user gets either a flattened mart or a wrong number.</div>
+      <div class="pattern-fix">First-class. Metrics declare <code>proportional_to</code> or <code>equal_split</code>; generator emits an allocator subquery.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">06</div>
+      <div class="pattern-name">Unanswerable combinations</div>
+      <div class="pattern-hard">Often produce an inflated number with no warning.</div>
+      <div class="pattern-fix">Structured refusal. <code>FanoutInflationError</code> with the metric, dimensions, and offending relationship; the agent re-plans.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">07</div>
+      <div class="pattern-name">Performance strategy</div>
+      <div class="pattern-hard">Pre-aggregations / derived tables / aggregate tables that the modeler must define, schedule, and reconcile.</div>
+      <div class="pattern-fix">Aggregate-source routing is opt-in. You add aggregates when the data team chooses to, not because the tool needs them to be fast.</div>
+    </div>
+
+    <div class="pattern-row">
+      <div class="num-cell">08</div>
+      <div class="pattern-name">Drift between schema and model</div>
+      <div class="pattern-hard">Manual reconciliation; CI checks layered on top.</div>
+      <div class="pattern-fix">Physical layer validated against the live database at load. Mismatches are caught before any user query runs.</div>
+    </div>
+  </div>
+
+  <p>The pattern is uniform across the rows. Other semantic layers push correctness onto the modeler at author-time. The modeler has to anticipate every fan-out, every grain mismatch, every temporal join, every multi-hop, and bake the answer into the model before users start asking. DataXpress moves the burden into the generator. The model declares what's there; the generator decides how to query it safely. This is the difference, and every other difference in this article descends from it.</p>
+
+  <div class="callout">
+    <div class="callout-label">Said another way</div>
+    <p>Other tools give you a <em>vocabulary</em> for describing a warehouse you have to reshape to fit them. DataXpress gives you a <em>compiler</em> that reads the warehouse you already have and generates correct SQL against it.</p>
+    <p>If your warehouse already uses Kimball patterns (SCD2, periodic snapshots, accumulating snapshots, journals, bridges) the compiler model is the one that costs you nothing extra to adopt.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 3. REAL COST                   -->
+  <!-- ============================== -->
+
+  <h2 id="real-cost">What the tax actually costs you</h2>
+
+  <p>The visible cost of a semantic layer is the model files. Look harder, and the real cost is everywhere else.</p>
+
+  <p><strong>Two sources of truth.</strong> Your warehouse has a schema. Your semantic layer has a description of it. The two drift the moment a column is renamed or a table is rebuilt. Every team I've watched roll out one of these tools eventually adopts a CI check that compares the two, an explicit acknowledgement that the layer can lie about what the warehouse contains.</p>
+
+  <p><strong>A new role.</strong> "Analytics engineer" was supposed to bridge data engineering and analysis. In practice, the role has expanded to include the semantic layer itself: someone has to know the modeling idiom, the derived-table lifecycle, the cache refresh schedule. This is real, valuable work. It is also work that did not exist before the layer was introduced.</p>
+
+  <p><strong>Flat marts as a workaround.</strong> The most expensive cost is the one nobody attributes to the semantic layer directly. When the tool's join model can't safely handle a fan-out (an order fact joined to its line items, a customer joined to a SCD2 address history) the path of least resistance is to flatten the data into a one-row-per-grain mart and point the semantic layer at <em>that</em>. Your warehouse stops being shaped for the business and starts being shaped for the tool. Every flattening is a small, irreversible loss of fidelity.</p>
+
+  <div class="pull-quote">
+    <p>"The warehouse ends up shaped for the tool, not the business. Every flattening is a small, irreversible loss of fidelity."</p>
+  </div>
+
+  <p><strong>Pre-aggregation strategies you maintain instead of write.</strong> Most layers ship some form of aggregate awareness, pre-aggregation, or caching. Each one solves the same problem: the tool's straightforward path is too slow on real data, so you maintain a parallel pipeline of materializations to make it fast. These materializations have their own freshness windows, their own correctness rules, and their own ways of silently returning stale numbers.</p>
+
+  <p><strong>The patterns your warehouse already uses don't translate.</strong> Slowly changing dimensions, periodic snapshots, accumulating snapshots, bridge tables, journal-style ledgers: these are not exotic. They are the fourteen patterns Ralph Kimball described in 1996, and they are how serious warehouses are built. Most semantic layers handle two or three of them well. The others get flattened, denormalized, or worked around.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 4. THE BET                     -->
+  <!-- ============================== -->
+
+  <h2 id="bet">A different bet: meet the warehouse where it is</h2>
+
+  <p>DataXpress starts from a different premise. Your data engineers already modeled the warehouse. They chose a transaction fact for orders, a periodic snapshot for inventory, an SCD Type 2 for the customer address history, a journal for payments, a bridge for promotions. Each of those choices carries information (about grain, about temporality, about cardinality) that the warehouse already encodes.</p>
+
+  <p>So we don't ask you to write a second model. We ask you to write a thin description of the model that already exists.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Two postures toward the warehouse</div>
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" style="padding:28px 32px;background:#F4F3EF;">
+      <defs>
+        <marker id="ar1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C2D2D"/></marker>
+        <marker id="ar2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+      </defs>
+
+      <!-- LEFT: Most semantic layers -->
+      <text x="170" y="28" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#8C2D2D" text-anchor="middle" letter-spacing="2">MOST SEMANTIC LAYERS</text>
+
+      <rect x="60" y="50" width="220" height="48" rx="6" fill="#FFF5F5" stroke="#8C2D2D" stroke-width="1.2"/>
+      <text x="170" y="71" font-family="Inter,sans-serif" font-size="12" fill="#5C1F1F" text-anchor="middle" font-weight="600">Semantic Layer Idiom</text>
+      <text x="170" y="87" font-family="Inter,sans-serif" font-size="10" fill="#8C2D2D" text-anchor="middle">Views / Models / Metrics</text>
+
+      <rect x="60" y="118" width="220" height="48" rx="6" fill="#FFF5F5" stroke="#8C2D2D" stroke-width="1.2"/>
+      <text x="170" y="139" font-family="Inter,sans-serif" font-size="12" fill="#5C1F1F" text-anchor="middle" font-weight="600">Flat Marts &amp; Rollups</text>
+      <text x="170" y="155" font-family="Inter,sans-serif" font-size="10" fill="#8C2D2D" text-anchor="middle">Reshape to fit the tool</text>
+
+      <rect x="60" y="186" width="220" height="48" rx="6" fill="#F4F3EF" stroke="#A89A7E" stroke-width="1.2"/>
+      <text x="170" y="207" font-family="Inter,sans-serif" font-size="12" fill="#3D3A33" text-anchor="middle" font-weight="600">Your Warehouse</text>
+      <text x="170" y="223" font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">Reshaped &amp; flattened</text>
+
+      <line x1="170" y1="98" x2="170" y2="118" stroke="#8C2D2D" stroke-width="1.2" marker-end="url(#ar1)"/>
+      <line x1="170" y1="166" x2="170" y2="186" stroke="#8C2D2D" stroke-width="1.2" marker-end="url(#ar1)"/>
+
+      <text x="170" y="262" font-family="Inter,sans-serif" font-size="10" fill="#8C2D2D" text-anchor="middle" font-style="italic">Three layers. Two sources of truth. Constant drift.</text>
+
+      <!-- RIGHT: DataXpress -->
+      <text x="530" y="28" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#2D6A4F" text-anchor="middle" letter-spacing="2">DATAXPRESS</text>
+
+      <rect x="420" y="50" width="220" height="48" rx="6" fill="#F0F7F2" stroke="#2D6A4F" stroke-width="1.2"/>
+      <text x="530" y="71" font-family="Inter,sans-serif" font-size="12" fill="#1F4A37" text-anchor="middle" font-weight="600">Thin Context Layer</text>
+      <text x="530" y="87" font-family="Inter,sans-serif" font-size="10" fill="#2D6A4F" text-anchor="middle">Describes what's already there</text>
+
+      <rect x="420" y="118" width="220" height="116" rx="6" fill="#F4F3EF" stroke="#A89A7E" stroke-width="1.2"/>
+      <text x="530" y="148" font-family="Inter,sans-serif" font-size="12" fill="#3D3A33" text-anchor="middle" font-weight="600">Your Warehouse</text>
+      <text x="530" y="167" font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">SCD2, snapshots, journals,</text>
+      <text x="530" y="183" font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">bridges, accumulating facts,</text>
+      <text x="530" y="199" font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">unchanged</text>
+
+      <line x1="530" y1="98" x2="530" y2="118" stroke="#2D6A4F" stroke-width="1.2" marker-end="url(#ar2)"/>
+
+      <text x="530" y="262" font-family="Inter,sans-serif" font-size="10" fill="#2D6A4F" text-anchor="middle" font-style="italic">Two layers. One source of truth. The warehouse stays itself.</text>
+    </svg>
+  </div>
+
+  <p>The thin context layer does three things, and only three things. It declares what tables exist and what their columns mean. It declares the relationships between them, including cardinality, join keys, and time-versioning rules. It declares the metrics, formulas, and dimensions analysts care about. Nothing in this layer reshapes the warehouse. Nothing in this layer pre-aggregates. Nothing in this layer asks the data engineering team to change how they model.</p>
+
+  <p>Everything else (fan-out detection, allocation, multi-hop dimension joins, SCD2 temporal resolution, aggregate routing) happens in the query generator. Not as a configuration burden you carry. As capability that ships with the tool.</p>
+
+  <p>That is the whole bet. The dozen-plus Kimball patterns a production warehouse actually contains (SCD2, periodic and accumulating snapshots, journals, bridges, state-transition facts) are absorbed by the generator, not pushed back to you as marts to maintain. A semantic layer's real value is not how elegant its config looks; it is how many of these patterns it handles without asking you to reshape the data.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 6. HARD PROBLEMS               -->
+  <!-- ============================== -->
+
+  <h2 id="hard-problems">The problems most layers punt on</h2>
+
+  <p>Patterns are the easy half. The hard half is what happens when they interact: when the user asks a question that crosses grains, traverses multiple hops, or implicates a slowly-changing dimension. Here is what DataXpress does at the generator level so you don't have to flatten the warehouse to escape it.</p>
+
+  <h3>Fan-out joins, rewritten as subqueries</h3>
+
+  <p>The classic silent failure: an order header has <code>total_amount</code>, the line items have <code>quantity</code>. A user asks for "total revenue and total units." A naive join inflates revenue by the line-item count, the classic fan-out. The hard part is getting it right for non-additive measures too (AVG, COUNT DISTINCT, CASE-based metrics), not just SUM.</p>
+
+  <p>DataXpress detects fan-out edges via a BFS over the active joins, then rewrites the offending fact as an inline subquery: <code>(SELECT join_key, SUM(measure) FROM fact WHERE &hellip; GROUP BY join_key)</code>. Filter pushdown is automatic. Multiple fan-outs in the same query are pre-aggregated independently. AVG decomposes into SUM/COUNT before the rewrite so the semantics survive.</p>
+
+  <h3>Allocation when the question crosses grains</h3>
+
+  <p>Sometimes the user genuinely wants a header measure broken down by a many-side dimension: revenue by promotion, where promotions live in a bridge table. There is no safe join. There is only an allocation policy.</p>
+
+  <p>Metrics declare <code>allocation: { proportional_to: line_item_fact.amount }</code> or <code>allocation: { equal_split: { many_table: order_promotion_bridge } }</code>. The generator emits an allocator subquery joining the header to the weight grain. The agent layer surfaces the allocation rule to the planner so it knows when a request is safe to attempt.</p>
+
+  <h3>Multi-hop dimension joins</h3>
+
+  <p>"Revenue by product category" reaches three tables: order header, line items, products. Most semantic layers force you to either declare the path explicitly or denormalize the dim onto the fact. DataXpress runs a BFS over the relationship graph in <code>find_join_path()</code> and resolves the path itself. The dim's <code>dimJoinHops</code> is surfaced to the planner so it understands when a request requires traversal.</p>
+
+  <h3>SCD2 temporal resolution</h3>
+
+  <p>A customer address history has multiple rows per customer with <code>effective_from</code> / <code>effective_to</code>. Joining "as of now" is wrong: the join must resolve to the row that was active when the order was placed. The relationship declares <code>type: scd</code> with the date columns, and the generator emits the temporal predicate against the fact's transaction date. No materialized "address as-of" mart. No flat denormalization.</p>
+
+  <h3>Chasm trap detection and structured refusal</h3>
+
+  <p>Some combinations have no safe rewrite: two facts on opposite sides of a shared dimension, no allocation declared, no aggregate available. The generator detects these via primary-side reachability BFS and raises a structured <code>FanoutInflationError</code> with the metric, dimensions, and offending relationship. The agent catches this and re-plans with the alternatives surfaced in the error. The user never sees a silently inflated number.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 6.5 HEAD TO HEAD               -->
+  <!-- ============================== -->
+
+  <h2 id="head-to-head">The same hard case, two ways</h2>
+
+  <p>The cleanest way to see the difference is to take one question that has no answer in flat-mart land and watch what each approach requires you to do. The question: <em>"Total revenue and total units, by product category, last quarter."</em> Revenue lives on the order header. Units live on the line items. Product category is a multi-hop dim through the line item.</p>
+
+  <div class="code-trio">
+
+    <div class="code-block">
+      <div class="code-block-header"><span class="tool-name">The typical workaround: what you build</span><span>orders_line_items_mart.sql</span></div>
+<pre><span class="com">-- The two facts can't be crossed safely, so you</span>
+<span class="com">-- pre-aggregate the order header to its own grain</span>
+<span class="com">-- and materialize a wide mart the tool can read.</span>
+<span class="kw">SELECT</span>
+  l.order_id,
+  l.product_id,
+  l.quantity,
+  o.total_amount / o.line_count <span class="kw">AS</span> revenue_per_line  <span class="com">-- approximation</span>
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> order_lines l <span class="kw">USING</span> (order_id);
+
+<span class="com">-- and now you own it: a refresh schedule, a freshness</span>
+<span class="com">-- window, and a place where stale numbers can live.</span>
+<span class="com">-- Often one such mart per analytical question.</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header"><span class="tool-name">DataXpress: what you write</span><span>om_order.yaml</span></div>
+<pre><span class="com"># No mart. No pre-aggregation to maintain.</span>
+<span class="com"># Two metrics declared on their native fact, with grain.</span>
+<span class="kw">metrics:</span>
+  - name: total_revenue
+    formula: <span class="str">"SUM(om_order_fact.total_amount)"</span>
+  - name: total_units
+    formula: <span class="str">"SUM(om_order_line_item_fact.quantity)"</span>
+
+<span class="kw">dimensions:</span>
+  - name: product_category
+    column: om_product_dim.category
+    <span class="com"># multi-hop dim resolved by BFS, no path written</span>
+
+<span class="com"># That's it. The generator handles fan-out detection,</span>
+<span class="com"># subquery pre-aggregation, and the multi-hop join</span>
+<span class="com"># at runtime. No reshaping of the warehouse.</span></pre>
+    </div>
+
+  </div>
+
+  <p>The first is the familiar shape: <em>you, the modeler, anticipate the fan-out and write a workaround</em>. A derived table, a pre-aggregation, a wide mart. It becomes a maintenance object: a refresh schedule, a freshness window, a place where stale data can live. And it shapes the warehouse a little further toward the tool.</p>
+
+  <p>The second is shorter not because we left things out, but because the burden of correctness is in the generator, not in the modeler's head. You declare two metrics on their native facts. The generator does the rest at the moment a user asks the question.</p>
+
+  <div class="pull-quote">
+    <p>"Other tools ask you to anticipate every hard query at author-time. DataXpress asks the warehouse to stay itself, and answers hard queries at runtime."</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 7. EXAMPLE                     -->
+  <!-- ============================== -->
+
+  <h2 id="example">What this looks like in practice</h2>
+
+  <p>The most concrete way to see the difference is a single query. The user asks for two metrics from two different facts in the same perspective: total revenue from the order header, total units from the line items.</p>
+
+  <div class="user-prompt">
+    <div class="user-prompt-label">A user asks</div>
+    <p>"Show me <span class="metric-name">total revenue</span> and <span class="metric-name">total units</span>, by <span class="metric-name">product category</span>, for last quarter."</p>
+  </div>
+
+  <p>In a typical semantic layer, this is the moment a flat mart gets built. The warehouse already has the data, but the tool can't safely cross from the order header to the line items to the product dimension without inflating revenue. So someone, somewhere, materializes <code>orders_with_line_items_with_product</code>, a denormalized table whose only job is to make the BI tool happy. The warehouse drifts a little further from how the data engineering team actually models orders.</p>
+
+  <p>DataXpress generates this directly against the warehouse:</p>
+
+  <div class="query-sxs">
+    <div class="query-pane">
+      <div class="query-pane-header">Generated SQL: subquery pre-aggregation, no mart</div>
+<pre><span class="kw">SELECT</span>
+  product.category                                <span class="kw">AS</span> product_category,
+  <span class="fn">SUM</span>(order_preagg.total_amount)             <span class="kw">AS</span> total_revenue,
+  <span class="fn">SUM</span>(line_item.quantity)                    <span class="kw">AS</span> total_units
+<span class="kw">FROM</span> om_order_line_item_fact line_item
+<span class="kw">JOIN</span> om_product_dim product
+  <span class="kw">ON</span> line_item.product_id = product.product_id
+<span class="kw">JOIN</span> (
+  <span class="com">-- pre-aggregated to the order grain so the join</span>
+  <span class="com">-- to line_item does not inflate total_amount</span>
+  <span class="kw">SELECT</span> order_id, <span class="fn">SUM</span>(total_amount) <span class="kw">AS</span> total_amount
+  <span class="kw">FROM</span> om_order_fact
+  <span class="kw">WHERE</span> order_date <span class="kw">BETWEEN</span> <span class="str">'2026-01-01'</span> <span class="kw">AND</span> <span class="str">'2026-03-31'</span>
+  <span class="kw">GROUP BY</span> order_id
+) order_preagg
+  <span class="kw">ON</span> line_item.order_id = order_preagg.order_id
+<span class="kw">WHERE</span> line_item.order_date <span class="kw">BETWEEN</span> <span class="str">'2026-01-01'</span> <span class="kw">AND</span> <span class="str">'2026-03-31'</span>
+<span class="kw">GROUP BY</span> product.category
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>;</pre>
+    </div>
+  </div>
+
+  <p>Three things to notice. The order header is pre-aggregated to its own grain inside an inline subquery, so the join to the line items doesn't inflate revenue. The line-item filter is pushed into the subquery so the pre-aggregation is correct under the user's date range. No CTEs, no window-function tricks: just a subquery any SQL reviewer can trace back to the model. And critically: the warehouse did not change. <code>om_order_fact</code> stayed a transaction fact. <code>om_order_line_item_fact</code> stayed a line-item fact. <code>om_product_dim</code> stayed a current-state dim. No mart was built.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- 8. STOP                        -->
+  <!-- ============================== -->
+
+  <h2 id="stop">What you stop doing</h2>
+
+  <p>The clearest way to see what a tool gives you is to look at what it lets you stop doing. Here is what falls off your roadmap.</p>
+
+  <ul class="stop-list">
+    <li><span class="strike">&times;</span><span><strong>Re-modeling the warehouse for the BI tool.</strong> Your physical layer mirrors what's already there. No second authoring step in a different idiom.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Building flat marts to escape fan-outs.</strong> The generator pre-aggregates on the fly. The mart you were going to build was a workaround for a missing capability, not a real modeling decision.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Maintaining a pre-aggregation strategy.</strong> Aggregate-source routing is opt-in and explicit. You add aggregates when the data team chooses to, not because the tool needs them to be fast.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Staffing a semantic-layer team.</strong> The thin context layer is small enough that the same people who own the warehouse own the model. No new role.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Reconciling drift between the warehouse and the layer.</strong> The physical layer is validated against the live database; mismatches are caught at load, not on a user query.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Flattening SCD2 dims into "as-of" marts.</strong> Temporal joins are first-class. The relationship declares the time-versioning, the generator handles the predicate.</span></li>
+    <li><span class="strike">&times;</span><span><strong>Translating Kimball patterns into the tool's primitives.</strong> Periodic snapshots, accumulating snapshots, journals, bridges, state transitions: modeled as themselves, not approximations.</span></li>
+  </ul>
+
+  <p>Most of these are not items on a Jira backlog. They are the background hum of a data team's quarter: the work that gets done because the tool needs it, the work that everyone has come to assume is just part of running a semantic layer. Removing them changes what the team gets to spend time on.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <h2>Vocabulary vs compiler</h2>
+
+  <p>The bet behind DataXpress is structural, not stylistic. We are not arguing that other semantic layers are badly designed. We are arguing that they all answer one architectural question the same way (<em>push correctness onto the modeler at author-time</em>), and that the cost of that answer is paid in places that don't show up in the marketing material: in the marts, the derived tables, the refresh schedules, the new role on the team, the warehouse that quietly reshapes itself to fit the tool.</p>
+
+  <p>DataXpress answers the question the other way. The model declares what's there. The generator decides how to query it safely. Fan-out, allocation, multi-hop, SCD2, chasm-trap: all moved out of the modeling layer and into the compiler, where one good implementation serves every question users will ever ask. You stop authoring workarounds for queries you haven't seen yet.</p>
+
+  <div class="pull-quote">
+    <p>"Other semantic layers are vocabularies. DataXpress is a compiler. The warehouse you have is the model. We just compile against it."</p>
+  </div>
+
+  <p>Your data engineers already chose a transaction fact for orders. They already chose an SCD Type 2 for the customer address history, a journal for payments, a bridge for promotions, a periodic snapshot for inventory. Each of those choices was made for good reasons, in service of the business. A semantic layer that asks you to flatten those choices, or to redescribe them in a different vocabulary, is a layer that has misunderstood where the modeling already lives.</p>
+
+  <p>The warehouse you have is the model. We just compile against it.</p>
+
+  <p style="text-align: center; margin-top: 48px; font-family: var(--sans); font-size: 14px; color: var(--muted);"><a href="why-your-semantic-layer-matters.html" style="color: var(--accent);">Read: Why your semantic layer matters more than your AI agent &rarr;</a><br><a href="semantic-layer-deep-dive.html" style="color: var(--accent);">Read: The full technical deep-dive &rarr;</a></p>
+
+</div>
+
+<div class="footer">
+  <p>Semantic DataXpress, a thin context layer that meets your warehouse where it is.</p>
+  <p style="margin-top: 16px;"><a href="#" style="color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: 1px;">BACK TO TOP &uarr;</a></p>
+</div>
+
+<script>
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = (scrollTop / docHeight) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+});
+</script>
+
+</body>
+</html>

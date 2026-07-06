@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Semantic Layer That Keeps Itself Current</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #FAFAF8;
+  --surface: #F4F3EF;
+  --border: #E5E4DC;
+  --text: #1A1916;
+  --muted: #6B6860;
+  --accent: #2D5A8C;
+  --accent2: #4A7FB5;
+  --green: #2D6A4F;
+  --red: #8C2D2D;
+  --warm: #8C6D2D;
+  --serif: 'Lora', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+.header {
+  background: var(--text);
+  color: #F4F3EF;
+  padding: 80px 24px 72px;
+  text-align: center;
+}
+
+.header-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.5);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header-label::before, .header-label::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: rgba(244,243,239,0.3);
+}
+
+.header h1 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 4.5vw, 44px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  max-width: 860px;
+  margin: 0 auto 24px;
+  color: #F4F3EF;
+}
+
+.header h1 em { font-style: italic; color: #93B8D4; }
+
+.header-sub {
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 300;
+  color: rgba(244,243,239,0.65);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.4);
+  letter-spacing: 1px;
+}
+
+.reading-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.35);
+  letter-spacing: 1px;
+  margin-top: 12px;
+}
+
+.article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 24px 120px;
+}
+
+.lead {
+  font-size: 22px;
+  line-height: 1.65;
+  color: #2A2926;
+  font-weight: 400;
+  margin-bottom: 48px;
+  font-style: italic;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  margin: 40px 0 16px;
+  line-height: 1.25;
+}
+
+h3 {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 40px 0 16px;
+  color: var(--text);
+}
+
+p { margin-bottom: 24px; color: #2A2926; text-align: justify; }
+p:last-child { margin-bottom: 0; }
+
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: 4px 0 4px 28px;
+  margin: 48px 0;
+}
+
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent);
+  font-weight: 400;
+  margin: 0;
+  text-align: left;
+}
+
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px 32px;
+  margin: 40px 0;
+}
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.callout p {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+  text-align: left;
+}
+
+.callout p + p { margin-top: 12px; }
+
+.diagram-wrap {
+  margin: 48px -20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 16px 24px 0;
+}
+
+.diagram-wrap svg { display: block; width: 100%; height: auto; }
+
+.code-block {
+  background: #0F0F1A;
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 32px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #C8D3E8;
+  margin: 0;
+}
+
+.code-block-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 14px;
+}
+
+.code-kw  { color: #93B8D4; }
+.code-str { color: #A8D8A8; }
+.code-cm  { color: rgba(200,211,232,0.35); font-style: italic; }
+.code-num { color: #E8C87A; }
+.code-fn  { color: #E8A87A; }
+.code-ph  { color: #D4A4E8; }
+.code-tag { color: #F0A060; }
+
+.table-scroll {
+  overflow-x: auto;
+  margin: 32px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.rule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 14px;
+  min-width: 480px;
+}
+
+.rule-table th {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rule-table th:last-child { border-right: none; }
+
+.rule-table td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 14px;
+  line-height: 1.55;
+  color: var(--text);
+  vertical-align: top;
+}
+
+.rule-table td:last-child { border-right: none; }
+.rule-table tr:last-child td { border-bottom: none; }
+.rule-table tr:hover td { background: var(--surface); }
+
+.lesson {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin: 32px 0;
+}
+
+.lesson-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.lesson-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.lesson p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  text-align: left;
+}
+
+.divider {
+  text-align: center;
+  margin: 32px 0;
+  color: var(--border);
+  letter-spacing: 12px;
+  font-size: 14px;
+}
+
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.footer p {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.key-takeaways {
+  background: #F0F4FA;
+  border: 1px solid #D0DDEF;
+  border-radius: 8px;
+  padding: 28px 32px;
+  margin: 0 0 48px;
+}
+
+.key-takeaways-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.key-takeaways ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.key-takeaways ul li {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  padding: 7px 0;
+  border-bottom: 1px solid #D0DDEF;
+  display: flex;
+  gap: 12px;
+  text-align: left;
+}
+
+.key-takeaways ul li:last-child { border-bottom: none; }
+
+.key-takeaways ul li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-top: 8px;
+}
+
+.toc {
+  margin: 40px 0 48px;
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.toc-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: toc-counter;
+}
+
+.toc ol li {
+  counter-increment: toc-counter;
+  padding: 5px 0;
+}
+
+.toc ol li a {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.toc ol li a:hover { color: var(--accent); }
+
+.toc ol li a::before {
+  content: counter(toc-counter, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  z-index: 1000;
+  transition: width 0.1s linear;
+}
+
+.step-list {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0;
+}
+
+.step-list li {
+  display: flex;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step-list li:last-child { border-bottom: none; }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  width: 28px;
+  padding-top: 3px;
+}
+
+.step-content { flex: 1; }
+
+.step-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.step-desc code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #2A2926;
+}
+
+.back-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.4);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 40px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: rgba(244,243,239,0.7); }
+
+code {
+  font-family: var(--mono);
+  font-size: 15px;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+@media (max-width: 640px) {
+  .diagram-wrap { margin: 40px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="header">
+  <a href="../index.html" class="back-link">&larr; All Articles</a>
+  <div class="header-label">Semantic DataXpress &nbsp;&middot;&nbsp; Platform Deep Dive</div>
+  <h1>A Semantic Layer That <em>Keeps Itself Current</em></h1>
+  <p class="header-sub">Schema drift is silent by default. Here is the governed loop that makes it visible, actionable, and resolved, without requiring manual vigilance to catch it first.</p>
+  <div class="header-meta">Narendra Devarasetty &nbsp;&middot;&nbsp; 2026</div>
+  <div class="reading-time">14 min read</div>
+</div>
+
+<div class="article">
+
+  <p class="lead">A semantic layer is easy to ship. What is hard is trusting it twelve months later. The warehouse has changed dozens of times. Backend engineers renamed columns. A status enum was split in two. New dimension attributes appeared that nobody told the data team about. The queries are still running. But are the numbers still right?</p>
+
+  <div class="key-takeaways">
+    <div class="key-takeaways-label">Key takeaways</div>
+    <ul>
+      <li>Schema drift is silent by default: queries continue executing even when the model's column references point to renamed, split, or retired definitions. The damage surfaces only when a stakeholder compares numbers weeks later.</li>
+      <li>The blast radius of drift inverts when you have a centralized semantic layer. Without one, each broken column breaks one analyst's query. With one, the same break silently corrupts every metric that depends on it.</li>
+      <li>The drift detector watches four categories of change (column addition, removal or rename, enum value change, and type change) and classifies each by severity. Severity determines the response path, not the direction of a human's attention.</li>
+      <li>The agent builds each draft from three grounding sources: the drift event record, query history (which reveals backward-compatibility consequences), and internal documents that carry the authoritative definition of what a column means.</li>
+      <li>The agent synthesizes context. It does not make decisions. Cases involving conflicting definitions, high-frequency backward-compatibility breaks, or type changes with business implications are always routed to a human.</li>
+      <li>The publish step is a trust event: it runs the full test suite, snapshots before and after state, and delivers a compatibility summary to every downstream consumer. It is the mechanism that allows teams to stake their credibility on the model.</li>
+    </ul>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">In this article</div>
+    <ol>
+      <li><a href="#staleness">The staleness problem</a></li>
+      <li><a href="#loop">The maintenance loop</a></li>
+      <li><a href="#detection">Schema drift detection</a></li>
+      <li><a href="#studio">The Studio</a></li>
+      <li><a href="#agent-draft">How the agent builds the draft</a></li>
+      <li><a href="#limits">What the agent cannot decide</a></li>
+      <li><a href="#human-loop">Human in the loop</a></li>
+      <li><a href="#validate-publish">Dataset owner validation and publish</a></li>
+      <li><a href="#feedback">The feedback loop</a></li>
+      <li><a href="#lessons">What I learned building it</a></li>
+    </ol>
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION 1: STALENESS           -->
+  <!-- ============================== -->
+
+  <h2 id="staleness">The staleness problem</h2>
+
+  <p>SpeedDelivery's data platform team maintains semantic models for three domains: delivery operations, finance, and consumer growth. Each model references a dozen tables owned by different engineering teams, on different release cycles, with no obligation to notify the data platform team when something changes.</p>
+
+  <p>This is the normal state of affairs at any organization operating at speed. A backend engineer renames <code>total_fee</code> to <code>gross_amount</code> as part of a payment system refactor. A data engineer splits the <code>delivery_status</code> enum into <code>driver_cancelled</code> and <code>consumer_cancelled</code> because the operational distinction finally matters. A new <code>zone_tier</code> column appears in <code>zone_dim</code> that three existing dashboards should be grouping by, but aren't. None of these changes break any queries immediately. The SQL still executes. The numbers just stop being right.</p>
+
+  <p>In a world without a semantic layer, the blast radius of any schema change is bounded. Each analyst owns their own SQL, so when a column breaks their query they notice immediately and fix it. With a centralized semantic layer, the blast radius inverts. One stale column reference in the physical layer corrupts every metric that depends on it, across every perspective and every team that inherits from it. The centralized model that was the source of consistent, trustworthy numbers becomes the source of consistently wrong ones, and nobody knows until a stakeholder runs a comparison.</p>
+
+  <p>The maintenance model that fails at scale is reactive: somebody notices a number looks wrong, files a ticket, a data engineer investigates, finds the stale reference, updates the YAML, opens a pull request, gets it reviewed, and merges it. By then the model has been stale for days or weeks. The investigation consumes hours that should have been spent on something else. And the damage, decisions made on wrong numbers before anyone noticed, is invisible and irreversible.</p>
+
+  <p>The model does not need better incident response. It needs a system that watches the warehouse continuously, detects drift the moment it happens, and initiates a governed update without requiring a human to notice it first.</p>
+
+  <div class="pull-quote">
+    <p>"A semantic layer that cannot detect when the warehouse changed underneath it is not a governed system. It is a snapshot that is aging."</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 2: THE LOOP            -->
+  <!-- ============================== -->
+
+  <h2 id="loop">The maintenance loop</h2>
+
+  <p>Every governed update follows the same cycle. The warehouse changes. The drift detector notices. A severity classifier routes the change. An agent builds a draft update using every available source of context. The draft lands in the Studio, where it is validated and reviewed. An owner approves or edits it. The change is published as a versioned, auditable revision. The model snapshot is updated. The detector's baseline advances. The loop closes and restarts.</p>
+
+  <p>What makes this a loop rather than a pipeline is the baseline update at the end. After each publish, the drift detector's snapshot of what the model expects is updated to match what was just approved. Future drift events are relative to the new baseline. A column that was added and approved stops generating noise. A column that was renamed and corrected no longer appears as a broken reference. The detector's attention stays focused on genuine new drift, not resolved history.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">The Maintenance Loop: full cycle from warehouse change to updated snapshot</div>
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="padding:32px 28px 24px;background:#F4F3EF;">
+      <defs>
+        <marker id="lp-fwd" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+        <marker id="lp-ret" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+        <marker id="lp-up"  markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+      </defs>
+
+      <!-- ── ROW LABELS ── -->
+      <text x="4" y="56"  font-family="JetBrains Mono,monospace" font-size="8" fill="#8C6D2D" font-weight="600">IN</text>
+      <text x="4" y="172" font-family="JetBrains Mono,monospace" font-size="8" fill="#2D6A4F" font-weight="600">OUT</text>
+
+      <!-- ══════════════════════════════════════════
+           ROW 1  (left → right)
+           WAREHOUSE  DETECT  CLASSIFY  DRAFT  STUDIO
+           ══════════════════════════════════════════ -->
+
+      <!-- WAREHOUSE -->
+      <rect x="22" y="24" width="118" height="56" rx="7" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="81" y="46"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#8C6D2D" text-anchor="middle">WAREHOUSE</text>
+      <line x1="33" y1="53" x2="129" y2="53" stroke="#E5D5B8" stroke-width="0.8"/>
+      <text x="81" y="67"  font-family="Inter,sans-serif" font-size="8.5" fill="#A89A7E" text-anchor="middle">schema evolves</text>
+      <text x="81" y="75" font-family="Inter,sans-serif" font-size="7.5" fill="#C4A26E" text-anchor="middle" font-style="italic">continuously</text>
+
+      <!-- → -->
+      <line x1="142" y1="52" x2="158" y2="52" stroke="#2D5A8C" stroke-width="1.5" marker-end="url(#lp-fwd)"/>
+      <text x="150" y="46" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">detects</text>
+
+      <!-- DRIFT DETECT -->
+      <rect x="160" y="24" width="118" height="56" rx="7" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="219" y="46"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">DRIFT DETECT</text>
+      <line x1="171" y1="53" x2="267" y2="53" stroke="#D0DDEF" stroke-width="0.8"/>
+      <text x="219" y="67"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A7A9E" text-anchor="middle">compares snapshot</text>
+      <text x="219" y="75"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle" font-style="italic">to live schema</text>
+
+      <!-- → -->
+      <line x1="280" y1="52" x2="296" y2="52" stroke="#2D5A8C" stroke-width="1.5" marker-end="url(#lp-fwd)"/>
+      <text x="288" y="46" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">routes</text>
+
+      <!-- CLASSIFY -->
+      <rect x="298" y="24" width="118" height="56" rx="7" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="357" y="46"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">CLASSIFY</text>
+      <line x1="309" y1="53" x2="405" y2="53" stroke="#D0DDEF" stroke-width="0.8"/>
+      <text x="357" y="67"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A7A9E" text-anchor="middle">severity · confidence</text>
+      <text x="357" y="75"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle" font-style="italic">HIGH / MED / LOW</text>
+
+      <!-- → -->
+      <line x1="418" y1="52" x2="434" y2="52" stroke="#2D5A8C" stroke-width="1.5" marker-end="url(#lp-fwd)"/>
+      <text x="426" y="46" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">drafts</text>
+
+      <!-- AGENT DRAFT -->
+      <rect x="436" y="24" width="118" height="56" rx="7" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="495" y="46"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">AGENT DRAFT</text>
+      <line x1="447" y1="53" x2="543" y2="53" stroke="#D0DDEF" stroke-width="0.8"/>
+      <text x="495" y="67"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A7A9E" text-anchor="middle">3-source context</text>
+      <text x="495" y="75"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle" font-style="italic">event · history · docs</text>
+
+      <!-- ↓ right-side bend -->
+      <line x1="556" y1="82" x2="556" y2="138" stroke="#2D5A8C" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="556" y1="138" x2="538" y2="138" stroke="#2D5A8C" stroke-width="1.5" marker-end="url(#lp-fwd)"/>
+      <text x="572" y="115" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle" transform="rotate(90,572,115)">to studio</text>
+
+      <!-- ══════════════════════════════════════════
+           ROW 2  (right → left)
+           STUDIO  VALIDATE  PUBLISH  SNAPSHOT
+           ══════════════════════════════════════════ -->
+
+      <!-- STUDIO -->
+      <rect x="298" y="114" width="238" height="56" rx="7" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="417" y="136"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">STUDIO</text>
+      <line x1="309" y1="143" x2="525" y2="143" stroke="#D0DDEF" stroke-width="0.8"/>
+      <text x="417" y="157"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A7A9E" text-anchor="middle">review draft · validate · owner sign-off</text>
+      <text x="417" y="165"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle" font-style="italic">blocked on HIGH severity until approved</text>
+
+      <!-- ← -->
+      <line x1="296" y1="142" x2="280" y2="142" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#lp-ret)"/>
+      <text x="288" y="135" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">publishes</text>
+
+      <!-- PUBLISH -->
+      <rect x="160" y="114" width="118" height="56" rx="7" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="219" y="136"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D6A4F" text-anchor="middle">PUBLISH</text>
+      <line x1="171" y1="143" x2="267" y2="143" stroke="#C8E6D4" stroke-width="0.8"/>
+      <text x="219" y="157"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A9E7E" text-anchor="middle">versioned · tested</text>
+      <text x="219" y="165"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A9E7E" text-anchor="middle" font-style="italic">compat summary sent</text>
+
+      <!-- ← -->
+      <line x1="158" y1="142" x2="142" y2="142" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#lp-ret)"/>
+      <text x="150" y="135" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">updates</text>
+
+      <!-- SNAPSHOT -->
+      <rect x="22" y="114" width="118" height="56" rx="7" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="81" y="136"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D6A4F" text-anchor="middle">SNAPSHOT</text>
+      <line x1="33" y1="143" x2="129" y2="143" stroke="#C8E6D4" stroke-width="0.8"/>
+      <text x="81" y="157"  font-family="Inter,sans-serif" font-size="8.5" fill="#5A9E7E" text-anchor="middle">baseline advances</text>
+      <text x="81" y="165"  font-family="Inter,sans-serif" font-size="7.5" fill="#5A9E7E" text-anchor="middle" font-style="italic">loop restarts</text>
+
+      <!-- ↑ left-side bend: loop close -->
+      <line x1="36" y1="112" x2="36" y2="84" stroke="#2D6A4F" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="36" y1="84"  x2="22"  y2="84" stroke="#2D6A4F" stroke-width="1.5"/>
+      <line x1="22" y1="84"  x2="22"  y2="56" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#lp-up)"/>
+      <text x="10" y="84"  font-family="Inter,sans-serif" font-size="7.5" fill="#2D6A4F" text-anchor="middle" transform="rotate(-90,10,84)">loop</text>
+
+      <!-- FEEDBACK annotation (bottom) -->
+      <text x="350" y="210" font-family="Inter,sans-serif" font-size="8" fill="#6B6860" text-anchor="middle">Rejected drafts feed back into the agent's context &middot; each cycle improves the next</text>
+    </svg>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 3: DETECTION           -->
+  <!-- ============================== -->
+
+  <h2 id="detection">Schema drift detection</h2>
+
+  <p>The drift detector runs on a schedule against every physical table registered in the semantic layer. For each table it fetches the live schema from the warehouse and compares it against the last approved snapshot stored in the model registry. The comparison is not just structural; it is semantic. The detector does not merely ask "did a column appear or disappear." It asks "did the meaning of a column change in a way that invalidates model definitions that depend on it."</p>
+
+  <p>Four categories of change trigger a drift event. Each carries an inherent severity level that determines how the system responds before any human sees it.</p>
+
+  <ul class="step-list">
+    <li>
+      <span class="step-num">01</span>
+      <div class="step-content">
+        <div class="step-title">Column addition</div>
+        <div class="step-desc">A new column appears in a registered table. Severity is low by default, but the agent evaluates whether the column is relevant to existing model definitions: a new <code>zone_tier</code> column in <code>zone_dim</code> might belong in three models. If relevance is detected, severity is elevated to medium.</div>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">02</span>
+      <div class="step-content">
+        <div class="step-title">Column removal or rename</div>
+        <div class="step-desc">A column that one or more model definitions reference by name is no longer present in the warehouse, or has appeared under a new name. Any model using <code>total_fee</code> as a metric source breaks silently the moment that column becomes <code>gross_amount</code>. This is always high severity and the affected models are identified immediately.</div>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">03</span>
+      <div class="step-content">
+        <div class="step-title">Enum value change</div>
+        <div class="step-desc">A column declared with canonical values in the model gains new values in the warehouse, retires existing ones, or splits a single value into multiple. SpeedDelivery's <code>delivery_status</code> split is a textbook case: the model's canonical value list becomes incomplete, every filter that matches against the old list silently under-counts, and the backward-compatibility question (do existing queries break?) requires query history to answer.</div>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">04</span>
+      <div class="step-content">
+        <div class="step-title">Type change</div>
+        <div class="step-desc">A column's data type changes in a way that may invalidate metric formulas, aggregation behavior, or join logic. A <code>VARCHAR</code> becoming a <code>DECIMAL</code> often represents a long-awaited cleanup; a <code>DECIMAL</code> becoming a <code>VARCHAR</code> is almost always an incident. Type changes always prompt a closer look regardless of severity classification.</div>
+      </div>
+    </li>
+  </ul>
+
+  <p>Every drift event is recorded with the affected table, the specific columns involved, the category and severity, the timestamp, and a full before-and-after snapshot. The models that reference the affected columns are listed explicitly. This record is the primary input the agent uses when building the draft, and the primary thing a dataset owner reviews when approving it.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">drift event record: delivery_fact, two simultaneous changes</div>
+    <pre><span class="code-kw">drift_event</span>:
+  <span class="code-kw">id</span>:        <span class="code-str">drift_20260314_delivery_fact</span>
+  <span class="code-kw">table</span>:     <span class="code-str">delivery_fact</span>
+  <span class="code-kw">detected</span>: <span class="code-str">2026-03-14T04:12:00Z</span>
+  <span class="code-kw">changes</span>:
+
+    - <span class="code-kw">type</span>:              <span class="code-str">column_rename</span>
+      <span class="code-kw">severity</span>:          <span class="code-str">high</span>
+      <span class="code-kw">from</span>:              <span class="code-str">total_fee</span>
+      <span class="code-kw">to</span>:                <span class="code-str">gross_amount</span>
+      <span class="code-kw">models_affected</span>:
+        - <span class="code-str">delivery_operations</span>    <span class="code-cm"># 3 metric formulas reference total_fee</span>
+        - <span class="code-str">delivery_finance</span>       <span class="code-cm"># revenue, net_revenue, commission</span>
+      <span class="code-kw">routing_decision</span>: <span class="code-str">blocked</span>  <span class="code-cm"># high severity → owner approval required</span>
+
+    - <span class="code-kw">type</span>:     <span class="code-str">enum_value_change</span>
+      <span class="code-kw">severity</span>: <span class="code-str">medium</span>
+      <span class="code-kw">column</span>:   <span class="code-str">delivery_status</span>
+      <span class="code-kw">before</span>:   [<span class="code-str">pending</span>, <span class="code-str">accepted</span>, <span class="code-str">in_transit</span>, <span class="code-str">delivered</span>, <span class="code-str">cancelled</span>]
+      <span class="code-kw">after</span>:    [<span class="code-str">pending</span>, <span class="code-str">accepted</span>, <span class="code-str">in_transit</span>, <span class="code-str">delivered</span>,
+                 <span class="code-str">driver_cancelled</span>, <span class="code-str">consumer_cancelled</span>]
+      <span class="code-kw">retired</span>:  [<span class="code-str">cancelled</span>]
+      <span class="code-kw">added</span>:    [<span class="code-str">driver_cancelled</span>, <span class="code-str">consumer_cancelled</span>]
+      <span class="code-kw">query_history_signal</span>:
+        <span class="code-kw">filter_on_cancelled</span>: <span class="code-num">847</span>  <span class="code-cm"># queries in last 90d</span>
+        <span class="code-kw">last_seen</span>: <span class="code-str">2026-03-13</span>      <span class="code-cm"># as recent as yesterday</span>
+      <span class="code-kw">routing_decision</span>: <span class="code-str">review_required</span>  <span class="code-cm"># high compat risk escalates medium</span></pre>
+  </div>
+
+  <p>The <code>query_history_signal</code> field is populated by the detector before the draft is built. It tells the agent, and the reviewing human, how many live queries were filtering on the retired value. 847 is a high-frequency signal. It means the enum split is not a minor cleanup; it is a backward-compatibility event that will silently change results for any query that was relying on <code>cancelled</code> to capture all cancellations. That context shapes both the draft and the routing decision.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 4: THE STUDIO          -->
+  <!-- ============================== -->
+
+  <h2 id="studio">The Studio</h2>
+
+  <p>The Studio is the surface where model evolution happens in the open. It is not a YAML editor on a laptop. It is a shared workspace where the data platform team and dataset owners can see every open drift event, inspect the agent's proposed response, run validation checks, and publish approved changes, all without leaving the tool and without touching a file directly.</p>
+
+  <p>The Studio has three panels. The drift inbox on the left shows every open event sorted by severity, with high-severity items flagged in amber. Clicking an event loads the agent-generated draft into the center editor, with diff markers showing exactly what changed and why, each change accompanied by the evidence that drove it. The validation panel on the right runs automatically when a draft is loaded: it checks that every formula resolves against the updated schema, verifies canonical value lists are complete, identifies downstream dashboards and saved queries that reference the changed columns, and surfaces any test failures. Nothing moves to the publish step until the relevant validation checks are green.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Studio: drift inbox &middot; agent draft &middot; validation panel</div>
+    <svg viewBox="0 0 780 390" xmlns="http://www.w3.org/2000/svg" style="background:#F4F3EF;">
+      <!-- ══════════════════════════════
+           PANEL 1, DRIFT INBOX
+           ══════════════════════════════ -->
+      <rect x="16" y="16" width="188" height="358" rx="7" fill="#FAFAF8" stroke="#E5E4DC" stroke-width="1.5"/>
+      <!-- header -->
+      <rect x="16" y="16" width="188" height="34" rx="7" fill="#EEECEA" stroke="#E5E4DC" stroke-width="1.5"/>
+      <rect x="16" y="34" width="188" height="16" fill="#EEECEA"/>
+      <text x="32" y="38" font-family="JetBrains Mono,monospace" font-size="8.5" font-weight="600" fill="#6B6860" letter-spacing="1.5">DRIFT INBOX</text>
+      <rect x="158" y="21" width="36" height="16" rx="8" fill="#E5E4DC"/>
+      <text x="176" y="33" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#6B6860" text-anchor="middle">3 open</text>
+
+      <!-- Card 1: HIGH -->
+      <rect x="28" y="62" width="164" height="82" rx="5" fill="#FAFAF8" stroke="#E5E4DC" stroke-width="1"/>
+      <rect x="28" y="62" width="4"   height="82" rx="2" fill="#C4827A"/>
+      <text x="42" y="80" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#1A1916">delivery_fact</text>
+      <rect x="42" y="85" width="30" height="13" rx="6" fill="#FEF2F2" stroke="#C4827A" stroke-width="0.8"/>
+      <text x="57" y="95" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#8C2D2D" text-anchor="middle">HIGH</text>
+      <text x="42" y="112" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#6B6860">column_rename</text>
+      <text x="42" y="126" font-family="Inter,sans-serif" font-size="8.5" fill="#8C5050">total_fee → gross_amount</text>
+      <text x="42" y="138" font-family="Inter,sans-serif" font-size="7.5" fill="#A89A7E">2 models affected</text>
+
+      <!-- Card 2: MEDIUM -->
+      <rect x="28" y="156" width="164" height="92" rx="5" fill="#FAFAF8" stroke="#E5E4DC" stroke-width="1"/>
+      <rect x="28" y="156" width="4"   height="92" rx="2" fill="#C4A26E"/>
+      <text x="42" y="174" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#1A1916">delivery_fact</text>
+      <rect x="42" y="179" width="28" height="13" rx="6" fill="#FFF8F0" stroke="#C4A26E" stroke-width="0.8"/>
+      <text x="56" y="189" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#8C6D2D" text-anchor="middle">MED</text>
+      <text x="42" y="206" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#6B6860">enum_value_change</text>
+      <text x="42" y="220" font-family="Inter,sans-serif" font-size="8.5" fill="#8C6D2D">delivery_status split</text>
+      <text x="42" y="233" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#C4A26E">847 live queries</text>
+      <text x="42" y="243" font-family="Inter,sans-serif" font-size="7.5" fill="#A89A7E">review required</text>
+
+      <!-- Card 3: LOW -->
+      <rect x="28" y="260" width="164" height="76" rx="5" fill="#FAFAF8" stroke="#E5E4DC" stroke-width="1"/>
+      <rect x="28" y="260" width="4"   height="76" rx="2" fill="#C8C4BC"/>
+      <text x="42" y="278" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#1A1916">zone_dim</text>
+      <rect x="42" y="283" width="26" height="13" rx="6" fill="#F4F3EF" stroke="#C8C4BC" stroke-width="0.8"/>
+      <text x="55" y="293" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#9B9890" text-anchor="middle">LOW</text>
+      <text x="42" y="310" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#6B6860">column_added</text>
+      <text x="42" y="326" font-family="Inter,sans-serif" font-size="8.5" fill="#9B9890">zone_tier · model relevant</text>
+
+      <!-- ══════════════════════════════
+           PANEL 2, AGENT DRAFT
+           ══════════════════════════════ -->
+      <rect x="216" y="16" width="298" height="358" rx="7" fill="#0F0F1A"/>
+      <!-- header -->
+      <rect x="216" y="16" width="298" height="34" rx="7" fill="#1A1A2A"/>
+      <rect x="216" y="34" width="298" height="16" fill="#1A1A2A"/>
+      <text x="230" y="37" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(200,211,232,0.4)">delivery_operations.yaml</text>
+      <rect x="452" y="21" width="52" height="17" rx="8" fill="rgba(45,106,79,0.35)" stroke="#2D6A4F" stroke-width="0.8"/>
+      <text x="478" y="33" font-family="JetBrains Mono,monospace" font-size="7" fill="#A8D8A8" text-anchor="middle">high conf</text>
+
+      <!-- code: metrics section -->
+      <text x="230" y="66" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#93B8D4">metrics:</text>
+
+      <!-- gross_revenue: modified lines (amber bars) -->
+      <rect x="216" y="72" width="4" height="14" rx="1" fill="#E8C87A"/>
+      <text x="240" y="83"  font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">- name: <tspan fill="#A8D8A8">gross_revenue</tspan></text>
+      <rect x="216" y="88" width="4" height="14" rx="1" fill="#E8C87A"/>
+      <text x="250" y="99"  font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">label: <tspan fill="#A8D8A8">Gross Revenue</tspan></text>
+      <rect x="216" y="104" width="4" height="14" rx="1" fill="#E8C87A"/>
+      <text x="250" y="115" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">formula: <tspan fill="#A8D8A8">SUM(gross_amount)</tspan></text>
+      <text x="250" y="130" font-family="JetBrains Mono,monospace" font-size="7.5" fill="rgba(200,211,232,0.28)"># renamed · RFC-2026-014</text>
+
+      <line x1="230" y1="139" x2="502" y2="139" stroke="rgba(200,211,232,0.07)" stroke-width="1"/>
+
+      <!-- cancellation_rate: enum updated (green bars = added) -->
+      <text x="240" y="153" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">- name: <tspan fill="#A8D8A8">cancellation_rate</tspan></text>
+      <text x="250" y="169" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">canonical_values:</text>
+      <rect x="216" y="174" width="4" height="14" rx="1" fill="#A8D8A8"/>
+      <text x="260" y="185" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#A8D8A8">- driver_cancelled</text>
+      <rect x="216" y="190" width="4" height="14" rx="1" fill="#A8D8A8"/>
+      <text x="260" y="201" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#A8D8A8">- consumer_cancelled</text>
+      <text x="250" y="217" font-family="JetBrains Mono,monospace" font-size="7.5" fill="rgba(200,211,232,0.28)"># retired: cancelled (847 queries)</text>
+
+      <line x1="230" y1="226" x2="502" y2="226" stroke="rgba(200,211,232,0.07)" stroke-width="1"/>
+
+      <!-- any_cancellation: new derived dim (green bars) -->
+      <text x="230" y="240" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#93B8D4">dimensions:</text>
+      <rect x="216" y="246" width="4" height="14" rx="1" fill="#A8D8A8"/>
+      <text x="250" y="257" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#C8D3E8">- name: <tspan fill="#A8D8A8">any_cancellation</tspan></text>
+      <rect x="216" y="262" width="4" height="14" rx="1" fill="#A8D8A8"/>
+      <text x="260" y="273" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#A8D8A8">type: derived  <tspan fill="rgba(200,211,232,0.28)"># compat shim</tspan></text>
+
+      <!-- legend -->
+      <rect x="230" y="294" width="10" height="10" rx="2" fill="#E8C87A"/>
+      <text x="244" y="303" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(200,211,232,0.35)">modified</text>
+      <rect x="296" y="294" width="10" height="10" rx="2" fill="#A8D8A8"/>
+      <text x="310" y="303" font-family="Inter,sans-serif" font-size="7.5" fill="rgba(200,211,232,0.35)">added</text>
+
+      <!-- action buttons -->
+      <rect x="228" y="318" width="80" height="32" rx="5" fill="#2D5A8C"/>
+      <text x="268" y="338" font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="#F4F3EF" text-anchor="middle">Approve</text>
+      <rect x="316" y="318" width="80" height="32" rx="5" fill="rgba(244,243,239,0.06)" stroke="rgba(244,243,239,0.18)" stroke-width="1"/>
+      <text x="356" y="338" font-family="Inter,sans-serif" font-size="9.5" fill="rgba(244,243,239,0.5)" text-anchor="middle">Edit</text>
+      <rect x="404" y="318" width="80" height="32" rx="5" fill="rgba(140,45,45,0.18)" stroke="rgba(180,80,80,0.35)" stroke-width="1"/>
+      <text x="444" y="338" font-family="Inter,sans-serif" font-size="9.5" fill="#C87A7A" text-anchor="middle">Reject</text>
+
+      <!-- ══════════════════════════════
+           PANEL 3, VALIDATION
+           ══════════════════════════════ -->
+      <rect x="526" y="16" width="238" height="358" rx="7" fill="#FAFAF8" stroke="#E5E4DC" stroke-width="1.5"/>
+      <!-- header -->
+      <rect x="526" y="16" width="238" height="34" rx="7" fill="#EEECEA" stroke="#E5E4DC" stroke-width="1.5"/>
+      <rect x="526" y="34" width="238" height="16" fill="#EEECEA"/>
+      <text x="542" y="38" font-family="JetBrains Mono,monospace" font-size="8.5" font-weight="600" fill="#6B6860" letter-spacing="1.5">VALIDATION</text>
+
+      <!-- checklist -->
+      <rect x="538" y="60"  width="214" height="22" rx="4" fill="#F0FAF4" stroke="#C8E6D4" stroke-width="1"/>
+      <text x="552" y="75" font-family="Inter,sans-serif" font-size="8.5" fill="#2D6A4F">&#10003;  formula resolves (gross_amount)</text>
+
+      <rect x="538" y="88"  width="214" height="22" rx="4" fill="#F0FAF4" stroke="#C8E6D4" stroke-width="1"/>
+      <text x="552" y="103" font-family="Inter,sans-serif" font-size="8.5" fill="#2D6A4F">&#10003;  column exists in table</text>
+
+      <rect x="538" y="116" width="214" height="22" rx="4" fill="#F0FAF4" stroke="#C8E6D4" stroke-width="1"/>
+      <text x="552" y="131" font-family="Inter,sans-serif" font-size="8.5" fill="#2D6A4F">&#10003;  canonical values complete</text>
+
+      <rect x="538" y="144" width="214" height="22" rx="4" fill="#FFF8F0" stroke="#E5D5B8" stroke-width="1"/>
+      <text x="552" y="159" font-family="Inter,sans-serif" font-size="8.5" fill="#8C6D2D">&#9888;  847 queries use retired value</text>
+
+      <rect x="538" y="172" width="214" height="22" rx="4" fill="#F0FAF4" stroke="#C8E6D4" stroke-width="1"/>
+      <text x="552" y="187" font-family="Inter,sans-serif" font-size="8.5" fill="#2D6A4F">&#10003;  tests pass (12/12)</text>
+
+      <rect x="538" y="200" width="214" height="22" rx="4" fill="#F0FAF4" stroke="#C8E6D4" stroke-width="1"/>
+      <text x="552" y="215" font-family="Inter,sans-serif" font-size="8.5" fill="#2D6A4F">&#10003;  0 broken references</text>
+
+      <!-- downstream impact -->
+      <rect x="538" y="238" width="214" height="78" rx="5" fill="#F4F3EF" stroke="#E5E4DC" stroke-width="1"/>
+      <text x="550" y="255" font-family="JetBrains Mono,monospace" font-size="7" fill="#9B9890" letter-spacing="1.5">DOWNSTREAM IMPACT</text>
+      <text x="550" y="276" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="#1A1916">3 dashboards</text>
+      <text x="550" y="293" font-family="Inter,sans-serif" font-size="8.5" fill="#6B6860">2 saved queries &middot; 1 scheduled report</text>
+      <text x="550" y="308" font-family="Inter,sans-serif" font-size="7.5" fill="#9B9890">compat summary sent on publish</text>
+
+      <!-- publish button -->
+      <rect x="538" y="330" width="214" height="36" rx="6" fill="#2D6A4F"/>
+      <text x="645" y="352" font-family="Inter,sans-serif" font-size="10.5" font-weight="600" fill="#F4F3EF" text-anchor="middle">Publish v2.4.1</text>
+    </svg>
+  </div>
+
+  <p>The warning about 847 queries using the retired enum value is surfaced as a warning, not a blocker. The model update can be published; the downstream queries do not need to be fixed before the model is correct again. The compatibility summary that ships with each publish gives dashboard owners the information they need to update their own filters at their own pace. This matters because holding the model update hostage to every downstream cleanup creates a backlog that nobody clears, and the model stays stale while waiting.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 5: AGENT DRAFT         -->
+  <!-- ============================== -->
+
+  <h2 id="agent-draft">How the agent builds the draft</h2>
+
+  <p>The agent does not guess. When it builds a draft, it assembles a context from three grounding sources before proposing a single change. Each source contributes something the others cannot: the drift event record provides the structural facts, query history reveals the behavioral consequences, and internal documents provide the authoritative intent behind a column's definition.</p>
+
+  <h3>The drift event record</h3>
+
+  <p>This is the foundation. The agent knows exactly which table changed, which columns are affected, what the before and after state looks like, and which model definitions reference those columns. For a column rename it has the old name and the new name. For an enum split it has the full set of retired and added values, the column's historical value distribution from the warehouse, and the query history signal showing how many live queries filtered on each value. This context is deterministic and complete; the agent does not need to infer what changed.</p>
+
+  <h3>Query history</h3>
+
+  <p>Query history is the most important grounding signal for backward-compatibility decisions. SpeedDelivery's semantic layer logs every query that passes through it: the perspective, the metrics requested, the dimensions sliced, the filters applied. This history is the closest thing to a specification for what the model needs to support. If <code>delivery_status = 'cancelled'</code> appears in 847 queries over the past 90 days, that is strong signal that retiring the value is a breaking change with significant downstream consequences, not a minor cleanup. The agent uses frequency and recency together: a high-frequency filter from a year ago carries less weight than a moderate-frequency filter from last week.</p>
+
+  <h3>Internal documents</h3>
+
+  <p>The agent has access to SpeedDelivery's internal document corpus: engineering RFCs, data dictionaries, Slack threads indexed from incident channels, and runbooks. When the drift event record references a column that also appears in a recent document, the agent pulls that document as context. The <code>gross_amount</code> rename was part of a broader payment system RFC that also clarified the distinction between platform fee and restaurant commission, and updated the definition of net revenue. The agent does not just rename the formula; it updates the metric's description field and disambiguation hints to match the RFC's language, because that language is now the authoritative definition.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">full agent context assembled for the delivery_fact drift event</div>
+    <pre><span class="code-kw">agent_context</span>:
+  <span class="code-kw">drift_event</span>: <span class="code-str">drift_20260314_delivery_fact</span>
+
+  <span class="code-kw">query_history</span>:
+    <span class="code-kw">window</span>: <span class="code-str">90d</span>
+    <span class="code-kw">column_usage</span>:
+      <span class="code-kw">total_fee</span>:
+        <span class="code-kw">in_metric_formula</span>: <span class="code-num">6</span>    <span class="code-cm"># models using it in a formula</span>
+        <span class="code-kw">in_filter</span>:         <span class="code-num">0</span>    <span class="code-cm"># nobody filters on it directly: safe rename</span>
+      <span class="code-kw">delivery_status</span>:
+        <span class="code-kw">filter_value_cancelled</span>:  <span class="code-num">847</span>  <span class="code-cm"># high: backward-compat decision required</span>
+        <span class="code-kw">filter_value_delivered</span>:  <span class="code-num">312</span>
+        <span class="code-kw">filter_value_in_transit</span>: <span class="code-num">45</span>
+    <span class="code-kw">backward_compat_risk</span>: <span class="code-str">high</span>
+
+  <span class="code-kw">documents</span>:
+    - <span class="code-kw">id</span>:        <span class="code-str">RFC-2026-014</span>
+      <span class="code-kw">relevance</span>: <span class="code-str">high</span>
+      <span class="code-kw">key_claims</span>:
+        - <span class="code-str">"total_fee renamed gross_amount for clarity with finance team"</span>
+        - <span class="code-str">"gross_amount = all fees before deductions"</span>
+        - <span class="code-str">"net_revenue definition unchanged, still post-deduction"</span>
+    - <span class="code-kw">id</span>:        <span class="code-str">DATA-DICT-delivery_status</span>
+      <span class="code-kw">relevance</span>: <span class="code-str">medium</span>
+      <span class="code-kw">key_claims</span>:
+        - <span class="code-str">"cancelled split: driver_cancelled + consumer_cancelled"</span>
+        - <span class="code-str">"most dashboards should treat both as cancellations"</span>
+
+  <span class="code-kw">proposed_actions</span>:
+    - <span class="code-kw">action</span>:   <span class="code-str">rename_formula_column</span>
+      <span class="code-kw">metric</span>:   <span class="code-str">gross_revenue</span>
+      <span class="code-kw">from</span>:     <span class="code-str">SUM(total_fee)</span>
+      <span class="code-kw">to</span>:       <span class="code-str">SUM(gross_amount)</span>
+      <span class="code-kw">also_update</span>: <span class="code-str">description</span>  <span class="code-cm"># align wording to RFC-2026-014</span>
+      <span class="code-kw">confidence</span>: <span class="code-str">high</span>
+
+    - <span class="code-kw">action</span>:    <span class="code-str">update_canonical_values</span>
+      <span class="code-kw">dimension</span>: <span class="code-str">delivery_status</span>
+      <span class="code-kw">add</span>:       [<span class="code-str">driver_cancelled</span>, <span class="code-str">consumer_cancelled</span>]
+      <span class="code-kw">retire</span>:    [<span class="code-str">cancelled</span>]
+      <span class="code-kw">confidence</span>: <span class="code-str">high</span>
+
+    - <span class="code-kw">action</span>:    <span class="code-str">add_derived_dimension</span>
+      <span class="code-kw">name</span>:      <span class="code-str">any_cancellation</span>
+      <span class="code-kw">expr</span>:      <span class="code-str">"status IN ('driver_cancelled','consumer_cancelled')"</span>
+      <span class="code-kw">reason</span>:    <span class="code-str">backward_compat_shim</span>
+      <span class="code-kw">confidence</span>: <span class="code-str">medium</span>
+      <span class="code-kw">note</span>: <span class="code-str">"team may prefer different naming, flagged for review"</span>
+
+  <span class="code-kw">confidence</span>:  <span class="code-str">high</span>
+  <span class="code-kw">review_flag</span>: <span class="code-str">true</span>   <span class="code-cm"># compat risk overrides confidence on the enum change</span></pre>
+  </div>
+
+  <p>The agent marks its own confidence. A draft where all evidence is consistent and the change is mechanical, a rename with a clear one-to-one mapping and an RFC that confirms intent, is marked <code>high_confidence</code>. A draft where the query history signals high backward-compatibility risk escalates to <code>review_flag: true</code> regardless of confidence, because the judgment call about how to handle 847 affected queries belongs to a person, not a language model. This escalation is not a failure state. It is the system correctly identifying where the human's judgment adds value.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 6: LIMITS              -->
+  <!-- ============================== -->
+
+  <h2 id="limits">What the agent cannot decide</h2>
+
+  <p>The agent is good at synthesis. It is not good at judgment calls that require domain knowledge, stakeholder context, or business intuition that does not exist in any document or query log. Understanding which cases belong to a human, and making that boundary explicit in the draft, is as important as any of the synthesis work the agent does.</p>
+
+  <p><strong>Conflicting definitions.</strong> When an RFC says one thing about a column and a data dictionary says another, the agent cannot resolve the conflict. It can surface both claims, note the contradiction, and flag the draft for human review. What it cannot do is decide which source is authoritative. That decision requires someone who knows which document reflects the current agreement, and which one is out of date.</p>
+
+  <p><strong>High-frequency backward-compatibility breaks.</strong> When 847 queries filtered on a retired enum value, someone needs to decide whether to create a backward-compatibility shim (a derived dimension that unions the new values), retire the old filter pattern entirely, or notify all downstream users and give them time to migrate. Each choice has different consequences for different teams. The agent can model all three options in the draft, but it cannot pick the right one.</p>
+
+  <p><strong>Type changes with business implications.</strong> A column changing from <code>DECIMAL(12,2)</code> to <code>DECIMAL(18,4)</code> is probably an improvement and can be approved mechanically. A column changing from <code>INTEGER</code> to <code>DECIMAL</code> suggests precision was previously being lost, which means historical values in the model may have been subtly wrong, and the right response might be a metric revision rather than just a type update. The agent flags this but cannot determine the business impact.</p>
+
+  <p>Every case that exceeds the agent's judgment boundary is marked explicitly in the draft. The agent does not silently guess when it is uncertain. It surfaces a structured note explaining what it knows, what it does not know, and what information the reviewing human would need to resolve the ambiguity. A draft with a clear uncertainty note is more useful than a draft that looks confident but has a hidden assumption baked in.</p>
+
+  <div class="callout">
+    <div class="callout-label">The right division of labor</div>
+    <p>The agent's value is in compression: turning a one-hour investigation into a five-minute review. It reads the drift event, pulls the relevant RFC, analyzes query history, identifies affected models, and presents a structured draft with supporting evidence. The reviewing human still needs domain expertise. They still decide whether the proposed formula change is right for their business. But they are correcting and approving a well-evidenced draft, not starting from a blank page.</p>
+    <p>The agent synthesizes. The human judges. Neither can do the other's job.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 7: HUMAN IN LOOP       -->
+  <!-- ============================== -->
+
+  <h2 id="human-loop">Human in the loop</h2>
+
+  <p>Not every drift event needs a human to approve it before anything changes. A blanket "everything requires sign-off" policy sounds rigorous, but in practice it creates a backlog that grows faster than anyone can clear it, and the model stays stale while waiting for attention. The routing logic is consequentialist rather than bureaucratic: route by the actual risk of getting the change wrong, not by the category of change.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Routing decision flow: severity &times; confidence &rarr; response path</div>
+    <svg viewBox="0 0 700 318" xmlns="http://www.w3.org/2000/svg" style="padding:28px 24px 20px;background:#F4F3EF;">
+      <defs>
+        <marker id="rt-b" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#6B6860"/></marker>
+        <marker id="rt-r" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C2D2D"/></marker>
+        <marker id="rt-g" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+        <marker id="rt-a" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+        <marker id="rt-m" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#9B9890"/></marker>
+      </defs>
+
+      <!-- ── DRIFT EVENT (top) ── -->
+      <rect x="258" y="12" width="184" height="48" rx="7" fill="#1A1916" stroke="#3A3830" stroke-width="1.5"/>
+      <text x="350" y="32" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#F4F3EF" text-anchor="middle" letter-spacing="0.5">DRIFT EVENT</text>
+      <line x1="270" y1="40" x2="428" y2="40" stroke="rgba(244,243,239,0.15)" stroke-width="0.8"/>
+      <text x="350" y="53" font-family="Inter,sans-serif" font-size="8.5" fill="rgba(244,243,239,0.5)" text-anchor="middle">severity · confidence · affected models</text>
+
+      <!-- trunk line down from DRIFT EVENT, then horizontal bus -->
+      <line x1="350" y1="62" x2="350" y2="74" stroke="#6B6860" stroke-width="1.5"/>
+      <line x1="110" y1="74" x2="590" y2="74" stroke="#6B6860" stroke-width="1.5"/>
+      <!-- three drops to severity nodes -->
+      <line x1="110" y1="74" x2="110" y2="102" stroke="#8C2D2D" stroke-width="1.5" marker-end="url(#rt-r)"/>
+      <line x1="350" y1="74" x2="350" y2="102" stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#rt-b)"/>
+      <line x1="590" y1="74" x2="590" y2="102" stroke="#9B9890" stroke-width="1.5" marker-end="url(#rt-m)"/>
+
+      <!-- branch labels -->
+      <text x="110" y="90" font-family="JetBrains Mono,monospace" font-size="8" fill="#8C2D2D" text-anchor="middle" font-weight="600">HIGH</text>
+      <text x="350" y="90" font-family="JetBrains Mono,monospace" font-size="8" fill="#8C6D2D" text-anchor="middle" font-weight="600">MEDIUM</text>
+      <text x="590" y="90" font-family="JetBrains Mono,monospace" font-size="8" fill="#9B9890" text-anchor="middle" font-weight="600">LOW</text>
+
+      <!-- ── SEVERITY NODES ── -->
+      <!-- HIGH -->
+      <rect x="40"  y="104" width="140" height="48" rx="6" fill="#FEF2F2" stroke="#C4827A" stroke-width="1.5"/>
+      <text x="110" y="124" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#8C2D2D" text-anchor="middle">HIGH SEVERITY</text>
+      <line x1="52"  y1="131" x2="168" y2="131" stroke="#E5B4BC" stroke-width="0.8"/>
+      <text x="110" y="144" font-family="Inter,sans-serif" font-size="8" fill="#8C5050" text-anchor="middle">broken ref · retired value</text>
+
+      <!-- MEDIUM -->
+      <rect x="280" y="104" width="140" height="48" rx="6" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="350" y="124" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#8C6D2D" text-anchor="middle">MEDIUM SEVERITY</text>
+      <line x1="292" y1="131" x2="408" y2="131" stroke="#E5D5B8" stroke-width="0.8"/>
+      <text x="350" y="144" font-family="Inter,sans-serif" font-size="8" fill="#A89A7E" text-anchor="middle">new enum · new column</text>
+
+      <!-- LOW -->
+      <rect x="520" y="104" width="140" height="48" rx="6" fill="#F4F3EF" stroke="#C8C4BC" stroke-width="1.5"/>
+      <text x="590" y="124" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#6B6860" text-anchor="middle">LOW SEVERITY</text>
+      <line x1="532" y1="131" x2="648" y2="131" stroke="#DEDAD4" stroke-width="0.8"/>
+      <text x="590" y="144" font-family="Inter,sans-serif" font-size="8" fill="#9B9890" text-anchor="middle">new column · no model impact</text>
+
+      <!-- MEDIUM sub-branch to confidence nodes -->
+      <line x1="350" y1="154" x2="350" y2="162" stroke="#8C6D2D" stroke-width="1.3"/>
+      <line x1="270" y1="162" x2="430" y2="162" stroke="#8C6D2D" stroke-width="1.3"/>
+      <line x1="270" y1="162" x2="270" y2="188" stroke="#2D5A8C" stroke-width="1.3" marker-end="url(#rt-a)"/>
+      <line x1="430" y1="162" x2="430" y2="188" stroke="#2D5A8C" stroke-width="1.3" marker-end="url(#rt-a)"/>
+
+      <!-- confidence labels -->
+      <text x="222" y="178" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#2D5A8C" text-anchor="middle">high confidence</text>
+      <text x="478" y="178" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#2D5A8C" text-anchor="middle">review required</text>
+
+      <!-- ── CONFIDENCE NODES ── -->
+      <rect x="200" y="190" width="140" height="40" rx="5" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.3"/>
+      <text x="270" y="207" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="#2D5A8C" text-anchor="middle">High confidence</text>
+      <text x="270" y="221" font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle">consistent evidence, clear mapping</text>
+
+      <rect x="360" y="190" width="140" height="40" rx="5" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.3"/>
+      <text x="430" y="207" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="#2D5A8C" text-anchor="middle">Review required</text>
+      <text x="430" y="221" font-family="Inter,sans-serif" font-size="7.5" fill="#5A7A9E" text-anchor="middle">conflict · high compat risk</text>
+
+      <!-- lines to outcome boxes -->
+      <line x1="110" y1="154" x2="110" y2="252" stroke="#8C2D2D" stroke-width="1.3" marker-end="url(#rt-r)"/>
+      <line x1="270" y1="232" x2="270" y2="252" stroke="#2D6A4F" stroke-width="1.3" marker-end="url(#rt-g)"/>
+      <line x1="430" y1="232" x2="430" y2="252" stroke="#2D5A8C" stroke-width="1.3" marker-end="url(#rt-a)"/>
+      <line x1="590" y1="154" x2="590" y2="252" stroke="#9B9890" stroke-width="1.3" marker-end="url(#rt-m)"/>
+
+      <!-- ── OUTCOME BOXES ── -->
+      <!-- BLOCKED -->
+      <rect x="40"  y="254" width="140" height="52" rx="6" fill="#FEF2F2" stroke="#8C2D2D" stroke-width="1.5"/>
+      <text x="110" y="272" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#8C2D2D" text-anchor="middle">BLOCKED</text>
+      <line x1="52"  y1="278" x2="168" y2="278" stroke="#E5B4BC" stroke-width="0.8"/>
+      <text x="110" y="290" font-family="Inter,sans-serif" font-size="7.5" fill="#8C5050" text-anchor="middle">owner must approve</text>
+      <text x="110" y="300" font-family="Inter,sans-serif" font-size="7.5" fill="#8C5050" text-anchor="middle">nothing applied until then</text>
+
+      <!-- AUTO-STAGING -->
+      <rect x="200" y="254" width="140" height="52" rx="6" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="270" y="272" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#2D6A4F" text-anchor="middle">AUTO-STAGING</text>
+      <line x1="212" y1="278" x2="328" y2="278" stroke="#C8E6D4" stroke-width="0.8"/>
+      <text x="270" y="290" font-family="Inter,sans-serif" font-size="7.5" fill="#3D7A5F" text-anchor="middle">applied to staging · owner</text>
+      <text x="270" y="300" font-family="Inter,sans-serif" font-size="7.5" fill="#3D7A5F" text-anchor="middle">notified with review window</text>
+
+      <!-- STUDIO QUEUE -->
+      <rect x="360" y="254" width="140" height="52" rx="6" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="430" y="272" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#2D5A8C" text-anchor="middle">STUDIO QUEUE</text>
+      <line x1="372" y1="278" x2="488" y2="278" stroke="#D0DDEF" stroke-width="0.8"/>
+      <text x="430" y="290" font-family="Inter,sans-serif" font-size="7.5" fill="#3D5A8C" text-anchor="middle">queued for review · owner</text>
+      <text x="430" y="300" font-family="Inter,sans-serif" font-size="7.5" fill="#3D5A8C" text-anchor="middle">must approve before staging</text>
+
+      <!-- LOG + SURFACE -->
+      <rect x="520" y="254" width="140" height="52" rx="6" fill="#F4F3EF" stroke="#9B9890" stroke-width="1.5"/>
+      <text x="590" y="272" font-family="Inter,sans-serif" font-size="9" font-weight="700" fill="#6B6860" text-anchor="middle">LOG + SURFACE</text>
+      <line x1="532" y1="278" x2="648" y2="278" stroke="#DEDAD4" stroke-width="0.8"/>
+      <text x="590" y="290" font-family="Inter,sans-serif" font-size="7.5" fill="#8B8880" text-anchor="middle">passively visible in Studio</text>
+      <text x="590" y="300" font-family="Inter,sans-serif" font-size="7.5" fill="#8B8880" text-anchor="middle">no action required</text>
+    </svg>
+  </div>
+
+  <p>The routing for high-severity changes is absolute. A broken column reference that would corrupt metric formulas in production is never auto-applied regardless of how confident the agent is. Confidence is earned over many correct drafts; trust is destroyed by one silent error that reaches a stakeholder's dashboard. The cost of requiring one approval is low. The cost of skipping it is not.</p>
+
+  <p>The staging window for medium-severity, high-confidence changes is the key operational feature. It allows the model to move forward on routine updates (a new enum value, a newly relevant column) without blocking on approval queues, while still giving owners the ability to catch anything the agent got wrong before it reaches production queries.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 8: VALIDATE + PUBLISH  -->
+  <!-- ============================== -->
+
+  <h2 id="validate-publish">Dataset owner validation and publish</h2>
+
+  <p>The dataset owner is the person or team responsible for the source table. At SpeedDelivery, the owner of <code>delivery_fact</code> is the logistics data team. They are the authoritative source on what any column in that table means, and they are the right people to verify that the agent's draft reflects that meaning correctly.</p>
+
+  <p>When a draft is routed for owner validation, the owner sees three things: the diff between the current model and the proposed draft, the agent's full reasoning (which sources it used, what signals drove each decision, and where its confidence was lower), and the validation panel results. They can approve as-is, edit the draft directly in the Studio, or reject it with a note. Rejection notes are not discarded; they feed directly back into the agent's context for the next draft on the same model.</p>
+
+  <p>The publish step is not a merge button. It is a versioned operation: a new revision of the model is created, the full test suite is run against the updated definitions, and a before-and-after snapshot is stored for audit purposes. Every downstream consumer (dashboards, saved queries, scheduled reports) receives a notification that the model changed, accompanied by a compatibility summary.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">publish record: delivery_operations v2.4.1</div>
+    <pre><span class="code-kw">publish</span>:
+  <span class="code-kw">model</span>:        <span class="code-str">delivery_operations</span>
+  <span class="code-kw">version</span>:     <span class="code-str">2.4.1</span>
+  <span class="code-kw">approved_by</span>: <span class="code-str">logistics-data-team</span>
+  <span class="code-kw">published_at</span>: <span class="code-str">2026-03-14T11:34:00Z</span>
+  <span class="code-kw">drift_event</span>: <span class="code-str">drift_20260314_delivery_fact</span>
+
+  <span class="code-kw">changes</span>:
+    - <span class="code-kw">metric</span>: <span class="code-str">gross_revenue</span>
+      <span class="code-kw">formula</span>: <span class="code-str">SUM(total_fee)</span> &rarr; <span class="code-str">SUM(gross_amount)</span>
+      <span class="code-kw">description_updated</span>: true    <span class="code-cm"># aligned to RFC-2026-014 language</span>
+    - <span class="code-kw">dimension</span>: <span class="code-str">delivery_status</span>
+      <span class="code-kw">canonical_values</span>: <span class="code-str">added driver_cancelled, consumer_cancelled; retired cancelled</span>
+    - <span class="code-kw">dimension</span>: <span class="code-str">any_cancellation</span>
+      <span class="code-kw">type</span>: <span class="code-str">derived</span>
+      <span class="code-kw">note</span>: <span class="code-str">"backward-compat wrapper: TRUE when driver_cancelled OR consumer_cancelled"</span>
+
+  <span class="code-kw">compatibility</span>:
+    <span class="code-kw">unaffected_queries</span>:       <span class="code-num">891</span>
+    <span class="code-kw">result_change_possible</span>:   <span class="code-num">47</span>   <span class="code-cm"># filtered on retired 'cancelled' value</span>
+    <span class="code-kw">broken_references</span>:        <span class="code-num">0</span>    <span class="code-cm"># any_cancellation shim covers all cases</span>
+
+  <span class="code-kw">tests</span>: <span class="code-str">passed (86/86)</span></pre>
+  </div>
+
+  <p>The 47 queries flagged as "result change possible" are the ones that filtered on the retired <code>cancelled</code> value. They are not broken (the derived <code>any_cancellation</code> dimension means they still execute) but their semantics have changed: they now capture both <code>driver_cancelled</code> and <code>consumer_cancelled</code> rows. Whether that is the right behavior for each of those 47 queries is a question each query's author needs to answer. The compatibility summary gives them the information they need to make that decision. The model is not responsible for making it for them.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 9: FEEDBACK LOOP       -->
+  <!-- ============================== -->
+
+  <h2 id="feedback">The feedback loop</h2>
+
+  <p>Every rejected draft carries a note. The owner explains what was wrong: the agent proposed updating the wrong formula, or the RFC it cited was superseded, or the backward-compatibility shim it generated did not match the team's naming conventions. These notes are not just corrections for this draft; they are constraints on future drafts for the same model. The agent accumulates a rejection history per model, and that history shapes every draft it generates afterward.</p>
+
+  <p>The practical effect compounds quickly. After a model has gone through two or three drift cycles, the agent's drafts become substantially more accurate because they are constrained by everything the owner has already told it is wrong. The first draft for a new model requires careful review. The tenth draft for a well-maintained model often requires only a quick scan. The system gets easier to maintain the more it is used, which is the opposite of the pattern most semantic layers follow.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">rejection record: stored as a constraint on future drafts</div>
+    <pre><span class="code-kw">rejection_record</span>:
+  <span class="code-kw">draft_id</span>:    <span class="code-str">draft_20260314_delivery_fact_v1</span>
+  <span class="code-kw">model</span>:       <span class="code-str">delivery_operations</span>
+  <span class="code-kw">rejected_by</span>: <span class="code-str">logistics-data-team</span>
+  <span class="code-kw">rejected_at</span>: <span class="code-str">2026-03-14T10:14:00Z</span>
+  <span class="code-kw">reason</span>: <span class="code-str">|</span>
+    <span class="code-str">  The any_cancellation shim name is wrong. Our team uses is_ prefix</span>
+    <span class="code-str">  for all boolean flag dimensions. Should be is_cancelled.</span>
+
+  <span class="code-kw">corrections</span>:
+    - <span class="code-kw">field</span>:           <span class="code-str">dimensions.any_cancellation.name</span>
+      <span class="code-kw">proposed_value</span>:  <span class="code-str">any_cancellation</span>
+      <span class="code-kw">correct_value</span>:   <span class="code-str">is_cancelled</span>
+
+  <span class="code-kw">stored_as_constraint</span>:
+    <span class="code-kw">scope</span>:      <span class="code-str">delivery_operations</span>
+    <span class="code-kw">rule</span>:       <span class="code-str">"boolean flag dimensions use is_ prefix"</span>
+    <span class="code-kw">applies_to</span>: <span class="code-str">dimension.name</span>
+    <span class="code-kw">effective</span>:  <span class="code-str">2026-03-14</span>
+
+<span class="code-cm"># Draft v2 is generated immediately with the constraint applied:</span>
+<span class="code-cm">#   dimensions[0].name: is_cancelled   ← correct</span>
+<span class="code-cm"># Owner approves v2 in 40 seconds. Constraint stays in context permanently.</span></pre>
+  </div>
+
+  <p>Owner approvals also feed back, not just rejections. When an owner approves a draft that included an unusual choice (a non-standard naming convention, a disambiguation hint phrased in domain-specific language, a derived dimension that the agent invented rather than copied from the existing model) that approval is recorded as positive signal. The agent learns which choices the owner validates without being told to, and applies the same patterns in future drafts. Over time, the agent develops a model-specific style that reflects the team's preferences without anyone ever explicitly writing them down.</p>
+
+  <div class="pull-quote">
+    <p>"The feedback loop is what separates a system from a tool. A tool is equally hard to use every time. A system gets easier the more context it accumulates."</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 10: LESSONS            -->
+  <!-- ============================== -->
+
+  <h2 id="lessons">What I learned building it</h2>
+
+  <div class="lesson">
+    <div class="lesson-num">LESSON 01</div>
+    <div class="lesson-title">The blast radius of centralization is the first thing to design for</div>
+    <p>The biggest surprise building this system was realizing that a semantic layer's greatest strength, centralizing metric definitions, is also its greatest operational risk. One stale reference corrupts everything that depends on it, silently. Before building any of the maintenance machinery, that risk needs to be the design constraint. The drift detector, the severity routing, the publish audit trail: all of it exists specifically because centralization raises the stakes of every schema change.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">LESSON 02</div>
+    <div class="lesson-title">Query history is more useful than documentation for backward-compatibility</div>
+    <p>I initially assumed internal documents would be the primary grounding signal for the agent. In practice, query history turned out to be more operationally important, because it answers the question documentation cannot: who is actually relying on this, and how often? A retired enum value in a column nobody filters on is a cosmetic change. The same change in a column that appears in 847 active queries is a migration event. That distinction is invisible in any document. It is only visible in the query log.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">LESSON 03</div>
+    <div class="lesson-title">Route by consequence, not by category</div>
+    <p>The first version of the routing logic was categorical: all column renames require approval, all new columns are auto-approved. This produced a backlog of approvals for obviously correct renames and auto-approved new columns that turned out to be highly relevant to existing models. Switching to consequence-based routing (severity determined by impact on existing model definitions, confidence determined by evidence quality) dramatically reduced unnecessary approval requests while catching the changes that actually needed attention.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">LESSON 04</div>
+    <div class="lesson-title">The publish step is where trust is built, not at launch</div>
+    <p>Teams start trusting the semantic layer on the day it is first deployed. They keep trusting it based on what happens when the warehouse changes. A model that handles drift correctly (notifying downstream consumers, providing a compatibility summary, publishing a versioned audit record) earns more trust with each update than a model that was perfectly correct at launch but handled its first schema change poorly. The publish step is not an operational detail. It is the primary trust-building event in the system's lifecycle.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- CLOSING                        -->
+  <!-- ============================== -->
+
+  <h2>A model that earns ongoing trust</h2>
+
+  <p>Every component described in this article (the drift detector, the severity classifier, the agent's three-source context assembly, the Studio, the staged review workflow, the versioned publish, the feedback loop) exists to answer the same question: is the number this model produces today based on the same definition it was based on last month?</p>
+
+  <p>That question does not have a permanent answer. The warehouse will change again tomorrow. Another column will be renamed. Another enum will be split. Another team will add a dimension attribute that three existing models should expose but currently don't. The right response to that reality is not more manual vigilance. It is a governed loop that notices, drafts, routes, validates, and publishes, and gets better at each step as the feedback accumulates.</p>
+
+  <p>A semantic layer that was correct at launch and has no mechanism for staying correct is a snapshot. A semantic layer with a governed maintenance loop is a system. The difference is not whether it fails: every model eventually diverges from a warehouse that keeps moving. The difference is whether the failure is silent or visible, whether it persists for weeks or resolves in hours, and whether the fix is a panicked manual correction or a governed, auditable update. That is what a maintenance loop buys.</p>
+
+  <p style="text-align: center; margin-top: 48px; font-family: var(--sans); font-size: 14px; color: var(--muted);"><a href="../index.html" style="color: var(--accent);">&larr; Back to all articles</a></p>
+
+</div>
+
+<div class="footer">
+  <p>Semantic DataXpress, a governed semantic layer that transforms warehouse schemas into business truth.</p>
+  <p style="margin-top: 16px;"><a href="#" style="color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: 1px;">BACK TO TOP &uarr;</a></p>
+</div>
+
+<script>
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = (scrollTop / docHeight) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantic Layer: Under the Hood</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #FAFAF8;
+  --surface: #F4F3EF;
+  --border: #E5E4DC;
+  --text: #1A1916;
+  --muted: #6B6860;
+  --accent: #2D5A8C;
+  --accent2: #4A7FB5;
+  --green: #2D6A4F;
+  --red: #8C2D2D;
+  --warm: #8C6D2D;
+  --serif: 'Lora', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+.header {
+  background: var(--text);
+  color: #F4F3EF;
+  padding: 80px 24px 72px;
+  text-align: center;
+}
+
+.header-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.5);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header-label::before, .header-label::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: rgba(244,243,239,0.3);
+}
+
+.header h1 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 4.5vw, 44px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  max-width: 860px;
+  margin: 0 auto 24px;
+  color: #F4F3EF;
+}
+
+.header h1 em { font-style: italic; color: #93B8D4; }
+
+.header-sub {
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 300;
+  color: rgba(244,243,239,0.65);
+  max-width: 640px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.4);
+  letter-spacing: 1px;
+}
+
+.reading-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(244,243,239,0.35);
+  letter-spacing: 1px;
+  margin-top: 12px;
+}
+
+.article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 24px 120px;
+}
+
+.lead {
+  font-size: 22px;
+  line-height: 1.65;
+  color: #2A2926;
+  font-weight: 400;
+  margin-bottom: 48px;
+  font-style: italic;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  margin: 40px 0 16px;
+  line-height: 1.25;
+}
+
+h3 {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 40px 0 16px;
+  color: var(--text);
+}
+
+p { margin-bottom: 24px; color: #2A2926; text-align: justify; }
+p:last-child { margin-bottom: 0; }
+
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: 4px 0 4px 28px;
+  margin: 48px 0;
+}
+
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--accent);
+  font-weight: 400;
+  margin: 0;
+  text-align: left;
+}
+
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px 32px;
+  margin: 40px 0;
+}
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.callout p {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0;
+  text-align: left;
+}
+
+.callout p + p { margin-top: 12px; }
+
+.diagram-wrap {
+  margin: 48px -20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.diagram-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 16px 24px 0;
+}
+
+.diagram-wrap svg { display: block; width: 100%; height: auto; }
+
+.code-block {
+  background: #0F0F1A;
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 32px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #C8D3E8;
+  margin: 0;
+}
+
+.code-block-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 14px;
+}
+
+.code-kw  { color: #93B8D4; }
+.code-str { color: #A8D8A8; }
+.code-cm  { color: rgba(200,211,232,0.35); font-style: italic; }
+.code-num { color: #E8C87A; }
+.code-fn  { color: #E8A87A; }
+.code-ph  { color: #D4A4E8; }
+.code-tag { color: #F0A060; }
+
+.table-scroll {
+  overflow-x: auto;
+  margin: 32px 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.rule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 14px;
+  min-width: 480px;
+}
+
+.rule-table th {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rule-table th:last-child { border-right: none; }
+
+.rule-table td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 14px;
+  line-height: 1.55;
+  color: var(--text);
+  vertical-align: top;
+}
+
+.rule-table td:last-child { border-right: none; }
+.rule-table tr:last-child td { border-bottom: none; }
+.rule-table tr:hover td { background: var(--surface); }
+
+.lesson {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px 28px;
+  margin: 32px 0;
+}
+
+.lesson-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.lesson-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.lesson p {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  text-align: left;
+}
+
+.divider {
+  text-align: center;
+  margin: 32px 0;
+  color: var(--border);
+  letter-spacing: 12px;
+  font-size: 14px;
+}
+
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.footer p {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.key-takeaways {
+  background: #F0F4FA;
+  border: 1px solid #D0DDEF;
+  border-radius: 8px;
+  padding: 28px 32px;
+  margin: 0 0 48px;
+}
+
+.key-takeaways-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.key-takeaways ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.key-takeaways ul li {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  padding: 7px 0;
+  border-bottom: 1px solid #D0DDEF;
+  display: flex;
+  gap: 12px;
+  text-align: left;
+}
+
+.key-takeaways ul li:last-child { border-bottom: none; }
+
+.key-takeaways ul li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-top: 8px;
+}
+
+.toc {
+  margin: 40px 0 48px;
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.toc-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: toc-counter;
+}
+
+.toc ol li {
+  counter-increment: toc-counter;
+  padding: 5px 0;
+}
+
+.toc ol li a {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.toc ol li a:hover { color: var(--accent); }
+
+.toc ol li a::before {
+  content: counter(toc-counter, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  z-index: 1000;
+  transition: width 0.1s linear;
+}
+
+.step-list {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0;
+}
+
+.step-list li {
+  display: flex;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step-list li:last-child { border-bottom: none; }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  width: 28px;
+  padding-top: 3px;
+}
+
+.step-content { flex: 1; }
+
+.step-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.step-desc code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #2A2926;
+}
+
+.back-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.4);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 40px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: rgba(244,243,239,0.7); }
+
+code {
+  font-family: var(--mono);
+  font-size: 15px;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+@media (max-width: 640px) {
+  .diagram-wrap { margin: 40px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="header">
+  <a href="../index.html" class="back-link">&larr; All Articles</a>
+  <div class="header-label">Semantic DataXpress &nbsp;&middot;&nbsp; Technical Deep Dive</div>
+  <h1>Semantic Layer: <em>Under the Hood</em></h1>
+  <p class="header-sub">A complete walkthrough of how a semantic layer is structured: entity modeling, relationship resolution, multi-role dimensions, aggregate context switching, derived metrics, and the definitions that make business data unambiguous.</p>
+  <div class="header-meta">Narendra Devarasetty &nbsp;&middot;&nbsp; 2026</div>
+  <div class="reading-time">22 min read</div>
+</div>
+
+<div class="article">
+
+  <p class="lead">Two dashboards disagree on last quarter's revenue. A wrong join inflates a metric by 30%. An AI assistant writes plausible SQL that silently drops half the data. These aren't edge cases. They're the default when business logic lives in scattered queries instead of a governed model.</p>
+
+  <p>This article is a walk-through of how I built a semantic layer from the ground up: the two-layer physical/model split, how entities and relationships are declared, how metrics are governed, how joins resolve automatically, how aggregates route safely, and how the whole thing is tested. A semantic layer is not middleware. It is the encoded knowledge of what your data means, and the engine that reads that knowledge to produce trustworthy SQL.</p>
+
+  <p>The examples throughout this article are drawn from <strong>SpeedDelivery</strong>, a food delivery platform connecting consumers, restaurant partners, and courier drivers across multiple cities. SpeedDelivery's data team serves three distinct audiences: an operations team tracking cancellation rates, delivery times, and zone performance; a finance team owning revenue, commission, and driver payout metrics; and a data platform team responsible for the warehouse schema and the semantic layer that sits on top of it. Their model is the thread that runs through every section here.</p>
+
+  <div class="callout">
+    <div class="callout-label">Is this worth building for your team?</div>
+    <p>In the age of AI, every analytics team has <strong>two personas of users: humans and AI agents</strong>. Most current implementations serve the AI persona by feeding everything at the model (table metadata, SQL query history, column profiling, whatever stats they can dump) and leaning on a high-end LLM to reason its way through. It works surprisingly often, and it fails quietly: plausible queries that join the wrong tables, filter on a status value that doesn't exist, or pick a revenue column that doesn't match the one the CFO reports.</p>
+    <p>The failure isn't the model. LLMs are very good at pattern matching and reasoning <strong>over structured data</strong>. Structure in the data context is nothing but a semantic data model: how you organize and represent your business metrics, dimensions, and hierarchies. The ceiling on what an LLM can answer correctly is set by how structured the context is.</p>
+    <p><strong>Predictability and reproducibility are critical.</strong> Without semantic context and a confined agent scope, it is hard for an agent to come up with the same answer every time. Ask "what's our revenue YTD?" on Tuesday and Thursday and get two different numbers, and the whole system loses trust, from humans and from downstream AI consumers alike. A governed semantic layer is what makes the output deterministic: same inputs, same metric definitions, same generated SQL, same answer.</p>
+    <p><strong>And you need a way to confirm all of this: evals.</strong> A set of canonical question-to-expected-SQL pairs (or question-to-expected-metric-value pairs) run on every model change. Without evals, you are trusting the agent's output by vibes; with them, a regression in metric resolution or query generation shows up as a failing test, not as a mis-reported number in next week's board deck.</p>
+    <p><strong>Probably yes, build one</strong> if: two dashboards disagree on the same metric; analysts regularly ask each other which tables join "correctly"; you are planning to put an LLM in front of your warehouse (or already have); metric changes require hunting through dozens of SQL files; or new analysts take weeks to ramp because the business logic lives in tribal knowledge.</p>
+    <p><strong>Probably not yet</strong> if: fewer than five analysts and one or two fact tables; a single BI tool with a small, stable metric set; no near-term AI integration; and metric definitions are not a source of pain in weekly reviews. Start with better dbt hygiene; revisit when any of the "yes" triggers fire.</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">In this article</div>
+    <ol>
+      <li><a href="#two-layers">The two layers: physical truth and business meaning</a></li>
+      <li><a href="#entities">Defining an entity</a></li>
+      <li><a href="#metrics">Metrics: formula, derived, and disambiguated</a></li>
+      <li><a href="#dimensions">Dimensions, model filters, and metric groups</a></li>
+      <li><a href="#joins">Star and snowflake schema joins</a></li>
+      <li><a href="#inheritance">Inheritance and multi-role dimensions</a></li>
+      <li><a href="#aggregates">Aggregate-aware context switching</a></li>
+      <li><a href="#generation">Query generation: the engine that reads the model</a></li>
+      <li><a href="#tests">Tests: enforcing correctness at every path</a></li>
+      <li><a href="#ai-agents">Serving AI agents</a></li>
+      <li><a href="#anti-patterns">Common anti-patterns</a></li>
+      <li><a href="#alternatives">How this compares to alternatives</a></li>
+      <li><a href="#getting-started">Getting started</a></li>
+    </ol>
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION 1: TWO LAYERS          -->
+  <!-- ============================== -->
+
+  <h2 id="two-layers">The two layers: physical truth and business meaning</h2>
+
+  <p>Every table, column, and join path in the warehouse is declared in the <strong>physical layer</strong>. Every metric, dimension, and business concept is declared in the <strong>model layer</strong>. The model layer references the physical layer. The physical layer knows nothing about the model layer. This one-way dependency is what prevents warehouse schema changes from silently corrupting business metric definitions.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Two-Layer Separation</div>
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" style="padding:28px 32px 24px;background:#F4F3EF;">
+      <defs>
+        <marker id="arr-b" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+        <marker id="arr-w" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C6D2D"/></marker>
+        <marker id="arr-g" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#555"/></marker>
+      </defs>
+
+      <!-- PHYSICAL LAYER -->
+      <rect x="40" y="20" width="280" height="130" rx="8" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="180" y="44" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#8C6D2D" text-anchor="middle" letter-spacing="1">PHYSICAL LAYER</text>
+      <line x1="52" y1="52" x2="308" y2="52" stroke="#E5D5B8" stroke-width="1"/>
+      <text x="180" y="71"  font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">fact &middot; dimension &middot; aggregate tables</text>
+      <text x="180" y="87"  font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">columns &middot; types &middot; canonical values</text>
+      <text x="180" y="103" font-family="Inter,sans-serif" font-size="10" fill="#6B6860" text-anchor="middle">join paths &middot; cardinality &middot; SCD definitions</text>
+      <text x="180" y="128" font-family="Inter,sans-serif" font-size="9"  fill="#A89A7E" text-anchor="middle" font-style="italic">Owned by data engineers &middot; changes with schema</text>
+
+      <!-- MODEL LAYER -->
+      <rect x="380" y="20" width="280" height="130" rx="8" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="520" y="44" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#2D5A8C" text-anchor="middle" letter-spacing="1">MODEL LAYER</text>
+      <line x1="392" y1="52" x2="648" y2="52" stroke="#D0DDEF" stroke-width="1"/>
+      <text x="520" y="71"  font-family="Inter,sans-serif" font-size="10" fill="#3D4A5C" text-anchor="middle">entities &middot; metrics &middot; dimensions</text>
+      <text x="520" y="87"  font-family="Inter,sans-serif" font-size="10" fill="#3D4A5C" text-anchor="middle">inheritance &middot; perspectives &middot; groups</text>
+      <text x="520" y="103" font-family="Inter,sans-serif" font-size="10" fill="#3D4A5C" text-anchor="middle">model filters &middot; aggregate sources</text>
+      <text x="520" y="128" font-family="Inter,sans-serif" font-size="9"  fill="#5A7A9E" text-anchor="middle" font-style="italic">Owned by analysts &middot; changes with business</text>
+
+      <!-- Arrow model → physical (one-way) -->
+      <line x1="378" y1="85" x2="323" y2="85" stroke="#555" stroke-width="1.5" marker-end="url(#arr-g)"/>
+      <text x="350" y="79" font-family="Inter,sans-serif" font-size="9" fill="#6B6860" text-anchor="middle">references</text>
+      <text x="350" y="100" font-family="Inter,sans-serif" font-size="8" fill="#8C2D2D" text-anchor="middle" font-style="italic">never reversed</text>
+
+      <!-- QUERY ENGINE below -->
+      <rect x="220" y="182" width="260" height="32" rx="5" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.2"/>
+      <text x="350" y="203" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#2D5A8C" text-anchor="middle">QUERY ENGINE · reads both, emits SQL</text>
+      <line x1="260" y1="152" x2="300" y2="180" stroke="#2D5A8C" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-b)"/>
+      <line x1="440" y1="152" x2="400" y2="180" stroke="#8C6D2D" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-w)"/>
+    </svg>
+  </div>
+
+  <p>When an engineer renames a column in the physical layer, the model loader catches the broken reference during validation and fails immediately with a clear error. When an analyst changes a metric formula in the model layer, the warehouse schema files are untouched. Each layer evolves independently, owned by the people who understand it best.</p>
+
+  <h3>What a physical table declaration looks like</h3>
+
+  <p>Every table in the physical layer follows the same structure: a <code>table</code> block with database, schema, and name, followed by a <code>columns</code> array where each column declares its type, description, and optionally its primary key status or the set of valid categorical values.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">delivery_fact.yaml: physical layer declaration</div>
+    <pre><span class="code-kw">table</span>:
+  <span class="code-kw">database</span>: <span class="code-str">warehouse</span>
+  <span class="code-kw">schema</span>:   <span class="code-str">analytics</span>
+  <span class="code-kw">name</span>:     <span class="code-str">delivery_fact</span>
+  <span class="code-kw">description</span>: <span class="code-str">"Delivery transaction fact table. Grain: one row per delivery."</span>
+
+<span class="code-kw">columns</span>:
+  - <span class="code-kw">name</span>: <span class="code-str">delivery_id</span>
+    <span class="code-kw">type</span>: <span class="code-str">BIGINT</span>
+    <span class="code-kw">is_primary_key</span>: true
+    <span class="code-kw">description</span>: <span class="code-str">"Unique delivery identifier"</span>
+
+  - <span class="code-kw">name</span>: <span class="code-str">consumer_id</span>
+    <span class="code-kw">type</span>: <span class="code-str">BIGINT</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Foreign key to consumer_dim"</span>
+
+  - <span class="code-kw">name</span>: <span class="code-str">order_date</span>
+    <span class="code-kw">type</span>: <span class="code-str">DATE</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Date the order was placed"</span>
+
+  - <span class="code-kw">name</span>: <span class="code-str">delivery_status</span>
+    <span class="code-kw">type</span>: <span class="code-str">VARCHAR(50)</span>
+    <span class="code-kw">values</span>: <span class="code-str">[pending, accepted, in_transit, delivered, cancelled]</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Current delivery status"</span>
+
+  - <span class="code-kw">name</span>: <span class="code-str">total_amount</span>
+    <span class="code-kw">type</span>: <span class="code-str">DECIMAL(12,2)</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Total amount charged for the delivery"</span></pre>
+  </div>
+
+  <p>The <code>description</code> on <code>consumer_id</code> names the target dimension table explicitly. This is documentation, not a parsed reference. The actual join lives in a separate relationship file and is declared once there. The physical layer describes structure; the model layer describes meaning; they do not bleed into each other.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 2: ENTITIES            -->
+  <!-- ============================== -->
+
+  <h2 id="entities">Defining an entity</h2>
+
+  <p>An entity in the model layer represents a business domain: delivery, consumer, store, driver. It is the unit of meaning that analysts think in. A core model declaration answers three questions: where does the data live, what is the grain, and what is the primary time axis?</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Core model declaration</div>
+    <pre><span class="code-kw">model</span>: delivery
+<span class="code-kw">type</span>: core
+<span class="code-kw">display_name</span>: <span class="code-str">"Delivery"</span>
+<span class="code-kw">icon</span>: <span class="code-str">"local_shipping"</span>
+<span class="code-kw">status</span>: production                 <span class="code-cm"># production | beta | deprecated</span>
+<span class="code-kw">source_table</span>: delivery_fact
+<span class="code-kw">date_field</span>: order_date             <span class="code-cm"># primary time axis for all date filtering</span>
+<span class="code-kw">grain</span>: [delivery_id]               <span class="code-cm"># one row per delivery</span>
+
+<span class="code-kw">dimensions</span>:
+  <span class="code-cm"># Time dimensions</span>
+  - <span class="code-kw">name</span>: order_date
+    <span class="code-kw">column</span>: order_date
+    <span class="code-kw">type</span>: date
+    <span class="code-kw">description</span>: <span class="code-str">"Date the order was placed"</span>
+
+  - <span class="code-kw">name</span>: delivery_dt
+    <span class="code-kw">column</span>: delivery_dt
+    <span class="code-kw">type</span>: date
+    <span class="code-kw">description</span>: <span class="code-str">"Date the order was delivered"</span>
+
+  - <span class="code-kw">name</span>: cancelled_dt
+    <span class="code-kw">column</span>: cancelled_dt
+    <span class="code-kw">type</span>: date
+    <span class="code-kw">description</span>: <span class="code-str">"Date the order was cancelled (NULL if not cancelled)"</span>
+
+  <span class="code-cm"># Identifiers</span>
+  - <span class="code-kw">name</span>: delivery_id
+    <span class="code-kw">column</span>: delivery_id
+    <span class="code-kw">type</span>: integer
+    <span class="code-kw">description</span>: <span class="code-str">"Unique identifier for the delivery"</span>
+
+  <span class="code-cm"># Attributes</span>
+  - <span class="code-kw">name</span>: delivery_status
+    <span class="code-kw">column</span>: delivery_status
+    <span class="code-kw">type</span>: categorical
+    <span class="code-kw">description</span>: <span class="code-str">"Current delivery status"</span>
+    <span class="code-kw">aliases</span>: [<span class="code-str">"order status"</span>]
+
+  - <span class="code-kw">name</span>: order_source
+    <span class="code-kw">column</span>: order_source
+    <span class="code-kw">type</span>: categorical
+    <span class="code-kw">description</span>: <span class="code-str">"Platform where order was placed"</span>
+    <span class="code-kw">aliases</span>: [<span class="code-str">"channel"</span>, <span class="code-str">"platform"</span>]
+
+<span class="code-kw">metrics</span>:
+  - <span class="code-kw">name</span>: total_orders
+    <span class="code-kw">display_name</span>: <span class="code-str">"Total Orders"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Count of all deliveries"</span>
+    <span class="code-kw">formula</span>: <span class="code-str">"COUNT(delivery_id)"</span>
+    <span class="code-kw">type</span>: integer
+    <span class="code-kw">certification</span>: verified
+
+  - <span class="code-kw">name</span>: total_revenue
+    <span class="code-kw">display_name</span>: <span class="code-str">"Total Revenue"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Sum of all order total amounts"</span>
+    <span class="code-kw">formula</span>: <span class="code-str">"SUM(total_amount)"</span>
+    <span class="code-kw">type</span>: currency
+    <span class="code-kw">unit</span>: USD
+    <span class="code-kw">certification</span>: verified
+    <span class="code-kw">aliases</span>: [<span class="code-str">"gross revenue"</span>, <span class="code-str">"GMV"</span>]
+
+  - <span class="code-kw">name</span>: avg_delivery_time
+    <span class="code-kw">display_name</span>: <span class="code-str">"Average Delivery Time"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Average delivery time in minutes"</span>
+    <span class="code-kw">formula</span>: <span class="code-str">"AVG(actual_delivery_minutes)"</span>
+    <span class="code-kw">type</span>: number
+    <span class="code-kw">unit</span>: minutes
+    <span class="code-kw">semantic_type</span>: duration
+
+  - <span class="code-kw">name</span>: total_cancelled
+    <span class="code-kw">display_name</span>: <span class="code-str">"Cancelled Orders"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Count of deliveries with status = 'cancelled'"</span>
+    <span class="code-kw">formula</span>: <span class="code-str">"COUNT(CASE WHEN delivery_status = 'cancelled' THEN 1 END)"</span>
+    <span class="code-kw">type</span>: integer
+    <span class="code-cm"># cancellation_rate is declared as a derived (expression) metric below.</span>
+    <span class="code-cm"># See "Derived metrics" in the next section.</span>
+
+<span class="code-kw">groups</span>:
+  - <span class="code-kw">name</span>: order_performance
+    <span class="code-kw">display_name</span>: <span class="code-str">"Order Performance"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Order volume and per-order economics"</span>
+    <span class="code-kw">metrics</span>:
+      - <span class="code-kw">name</span>: total_orders
+        <span class="code-kw">use_cases</span>:
+          - <span class="code-str">"Monitor order volume trends"</span>
+          - <span class="code-str">"Compare across segments"</span>
+      - <span class="code-kw">name</span>: total_revenue
+        <span class="code-kw">use_cases</span>:
+          - <span class="code-str">"Track overall revenue growth"</span>
+
+  - <span class="code-kw">name</span>: delivery_operations
+    <span class="code-kw">display_name</span>: <span class="code-str">"Delivery Operations"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Delivery time and quality metrics"</span>
+    <span class="code-kw">metrics</span>:
+      - <span class="code-kw">name</span>: avg_delivery_time
+        <span class="code-kw">use_cases</span>:
+          - <span class="code-str">"Monitor delivery speed trends"</span>
+      - <span class="code-kw">name</span>: cancellation_rate
+        <span class="code-kw">use_cases</span>:
+          - <span class="code-str">"Track order failure rate"</span>
+
+<span class="code-kw">default_filters</span>:
+  - <span class="code-kw">dimension</span>: delivery_status
+    <span class="code-kw">operator</span>: <span class="code-str">"!="</span>
+    <span class="code-kw">value</span>: <span class="code-str">"cancelled"</span></pre>
+  </div>
+
+  <p>The <code>grain</code> field is the model's correctness contract: at this grain, one row represents one thing: <code>[delivery_id]</code> for a delivery, <code>[order_id, line_item_id]</code> for a line item. It matters most when joins are involved. Joining <code>delivery_fact</code> to a finer-grained table fans out rows; each delivery multiplies into as many rows as it has line items, and any <code>SUM</code> double-counts. The grain declaration makes this risk explicit: the model author's commitment that they've handled it, through pre-aggregation, a subquery, or a distinct count. A model without a declared grain cannot be reasoned about.</p>
+
+  <p>The <code>date_field</code> is the single time axis for every date range filter and time-period comparison applied to this entity. A delivery model uses <code>order_date</code>; a driver payout model uses <code>payout_date</code>. Declared once, it flows through every query.</p>
+
+  <p>The <code>status</code> field signals the model's lifecycle stage: <em>production</em> means the model is stable and ready for general use; <em>beta</em> means it is functional but under active development and may change; <em>deprecated</em> means it should no longer be used and will be removed in a future release. Status is separate from metric certification: a production model can contain a mix of verified and informal metrics. Status answers "is this model ready for use?" while certification answers "is this specific calculation correct?"</p>
+
+  <h3>Perspectives: Purpose-built views with shared governance</h3>
+
+  <p>A perspective inherits a core model and tailors it for a specific team or use case. SpeedDelivery's operations team needs delivery time, cancellation rate, and zone-level dimensions with a default filter excluding test orders. Their finance team needs revenue, commission, and margin with a default filter for completed transactions only. Perspectives can also scope data access: a regional perspective for China has <code>region = 'CN'</code> baked in, so users of that perspective only see China data. All three perspectives share the same core delivery model: when the core metric formula changes, every perspective updates automatically. No duplication, no drift.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Perspective inheriting from a core model</div>
+    <pre><span class="code-kw">model</span>: delivery_operations
+<span class="code-kw">type</span>: perspective
+<span class="code-kw">core</span>: delivery                 <span class="code-cm"># inherits source_table, date_field, all dims + metrics</span>
+<span class="code-kw">display_name</span>: <span class="code-str">"Delivery Operations"</span>
+<span class="code-kw">icon</span>: <span class="code-str">"speed"</span>
+
+<span class="code-kw">inherits</span>:                       <span class="code-cm"># pull in dimensions from additional models</span>
+  - <span class="code-kw">model</span>: store
+    <span class="code-kw">join</span>: delivery_fact__store_dim
+
+<span class="code-kw">groups</span>:
+  - <span class="code-kw">name</span>: operations_summary
+    <span class="code-kw">display_name</span>: <span class="code-str">"Operations Summary"</span>
+    <span class="code-kw">description</span>: <span class="code-str">"Key operational health indicators"</span>
+    <span class="code-kw">metrics</span>:
+      - <span class="code-kw">name</span>: total_orders
+        <span class="code-kw">use_cases</span>:
+          - <span class="code-str">"Monitor daily order volume"</span>
+      - <span class="code-kw">name</span>: avg_delivery_time
+      - <span class="code-kw">name</span>: on_time_delivery_rate
+      - <span class="code-kw">name</span>: cancellation_rate
+
+<span class="code-kw">sample_questions</span>:
+  - <span class="code-str">"Which stores have the highest cancellation rate this week?"</span>
+  - <span class="code-str">"How has average delivery time changed month over month?"</span></pre>
+  </div>
+
+  <p>The resolver merges the core model's dimensions and metrics into the perspective, core items first, then the perspective's own additions. The perspective can add metrics the core doesn't have, override metric groups, append default filters, and pull in additional joined models. It cannot break the core model. Changes to the core automatically flow into every perspective that inherits it.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 3: METRICS             -->
+  <!-- ============================== -->
+
+  <h2 id="metrics">Metrics: formula, derived, and disambiguated</h2>
+
+  <p>A metric is more than a SQL formula. It is a named, versioned, governed piece of business logic with enough metadata to be used correctly by both humans and AI systems. The metadata answers three questions that a formula cannot: what does this metric mean, how should it be aggregated, and when should it be used instead of a similar one?</p>
+
+  <h3>Formula metrics</h3>
+
+  <p>A formula metric is a direct SQL aggregate over the source table. The formula is written with bare column names; the model loader qualifies them to <code>table.column</code> form at load time so the query engine never sees an unqualified reference.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Formula metric with full metadata</div>
+    <pre><span class="code-kw">- name</span>: total_revenue
+  <span class="code-kw">display_name</span>: <span class="code-str">"Total Revenue"</span>
+  <span class="code-kw">description</span>: <span class="code-str">"Sum of all order total amounts including fees and surcharges"</span>
+  <span class="code-kw">formula</span>: <span class="code-str">"SUM(total_amount)"</span>      <span class="code-cm"># qualified to SUM(delivery_fact.total_amount) at load time</span>
+  <span class="code-kw">type</span>: currency
+  <span class="code-kw">unit</span>: USD
+  <span class="code-kw">certification</span>: verified
+  <span class="code-kw">aliases</span>:
+    - <span class="code-str">"gross revenue"</span>
+    - <span class="code-str">"GMV"</span>
+    - <span class="code-str">"total sales"</span>
+  <span class="code-kw">preferred_for</span>:
+    - <span class="code-str">"revenue growth tracking"</span>
+    - <span class="code-str">"financial overview"</span>
+  <span class="code-kw">disambiguation_hints</span>: <span class="code-str">"Use for top-line gross revenue and GMV reporting.
+    For earnings after costs and deductions, use net_revenue instead."</span></pre>
+  </div>
+
+  <p>The <strong>certification level</strong> signals trust: <em>informal</em> means the metric was created by a team for their own use and hasn't been reviewed; <em>verified</em> means a data team member has confirmed the formula; <em>gold</em> means it is the company-wide standard for this concept. When two metrics match a question, certification breaks the tie.</p>
+
+  <p>The optional <strong>semantic type</strong> field encodes how a metric behaves mathematically: which aggregations are safe, how it should be displayed, and where it is likely to mislead. It is most important for non-additive metrics (rates, durations, semi-additive snapshots) where incorrect aggregation produces silent errors. Simple additive metrics like <code>total_revenue</code> typically omit this field. The types and what they imply:</p>
+
+  <div class="table-scroll">
+    <table class="rule-table">
+      <thead>
+        <tr><th>Semantic type</th><th>Behavior</th><th>Example</th><th>Common mistake</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>cumulative</strong></td>
+          <td>Fully additive. Safe to SUM across any dimension (region, time, store, driver).</td>
+          <td>total_revenue, total_orders</td>
+          <td>Double-counting when summing across overlapping time windows (e.g., summing weekly figures to get a monthly total that spans partial weeks)</td>
+        </tr>
+        <tr>
+          <td><strong>count</strong></td>
+          <td>Additive across dimensions but requires DISTINCT when the grain fans out.</td>
+          <td>unique_consumers, active_drivers</td>
+          <td>Counting consumers from a join-fanout query without DISTINCT, producing inflated counts</td>
+        </tr>
+        <tr>
+          <td><strong>ratio / rate</strong></td>
+          <td>Non-additive. Cannot be summed across any dimension. Must be recomputed from component metrics for any new slice.</td>
+          <td>cancellation_rate, conversion_rate, avg_order_value</td>
+          <td>Averaging rates across regions to get a total rate. The correct answer is always component_numerator / component_denominator recomputed at the new grain</td>
+        </tr>
+        <tr>
+          <td><strong>duration</strong></td>
+          <td>Should be averaged, not summed. Display with its time unit. Meaningful as a weighted average when combining groups of different sizes.</td>
+          <td>avg_delivery_time, p90_pickup_time</td>
+          <td>Summing durations to produce a "total wait time" figure that no one asked for</td>
+        </tr>
+        <tr>
+          <td><strong>currency</strong></td>
+          <td>Cumulative, but localization-sensitive. Display with currency code. Multi-currency models require explicit conversion before aggregation.</td>
+          <td>net_revenue, driver_payout, commission</td>
+          <td>Summing revenue across markets with different currencies without FX normalization</td>
+        </tr>
+        <tr>
+          <td><strong>semi-additive</strong></td>
+          <td>Additive across some dimensions (e.g., stores, regions) but <em>not</em> across time. The correct time aggregation is a snapshot: last value, average, or beginning/end of period.</td>
+          <td>active_inventory_count, account_balance, pending_orders</td>
+          <td>Summing a daily inventory snapshot across 30 days to get a "monthly total." This produces a number 30× too large with no business meaning</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Semi-additive metrics deserve extra attention because they are the most common source of silent errors in operations and finance models. If you have a metric that measures a state at a point in time (a balance, a count of active entities, an inventory level), it is semi-additive. The right query for "average daily active drivers last month" is <code>AVG(daily_snapshot)</code>, not <code>SUM(daily_snapshot)</code>. Declaring the semantic type makes this intent explicit and prevents the wrong aggregation from being applied by default.</p>
+
+  <p>The <strong>disambiguation hints</strong> field is operational guidance: free-text written by the metric author that explains when to use this metric and when to use a different one instead. Every disambiguation hint in the model was written to prevent a specific, observed confusion from recurring.</p>
+
+  <h3>Derived metrics</h3>
+
+  <p>Some business concepts are not raw aggregates but compositions of other metrics. Revenue per order is total revenue divided by total orders. Gross margin is net revenue divided by total revenue. These are declared as <em>expression</em> metrics: they reference other named metrics instead of writing out a formula.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Derived (expression) metrics</div>
+    <pre><span class="code-cm"># Base formula metrics</span>
+<span class="code-kw">- name</span>: total_revenue
+  <span class="code-kw">formula</span>: <span class="code-str">"SUM(total_amount)"</span>
+  <span class="code-kw">type</span>: currency
+
+<span class="code-kw">- name</span>: total_orders
+  <span class="code-kw">formula</span>: <span class="code-str">"COUNT(delivery_id)"</span>
+  <span class="code-kw">type</span>: integer
+
+<span class="code-cm"># Derived metrics: each references formula metrics above</span>
+<span class="code-kw">- name</span>: revenue_per_order
+  <span class="code-kw">display_name</span>: <span class="code-str">"Revenue Per Order"</span>
+  <span class="code-kw">expression</span>: <span class="code-str">"total_revenue / NULLIF(total_orders, 0)"</span>
+  <span class="code-kw">type</span>: currency
+  <span class="code-kw">semantic_type</span>: ratio
+  <span class="code-kw">disambiguation_hints</span>: <span class="code-str">"Average basket size. Do not sum across regions. Recompute from components."</span>
+
+<span class="code-kw">- name</span>: cancellation_rate
+  <span class="code-kw">display_name</span>: <span class="code-str">"Cancellation Rate"</span>
+  <span class="code-kw">expression</span>: <span class="code-str">"total_cancelled / NULLIF(total_orders, 0)"</span>
+  <span class="code-kw">type</span>: percentage
+  <span class="code-kw">semantic_type</span>: rate
+  <span class="code-kw">disambiguation_hints</span>: <span class="code-str">"Share of orders cancelled before completion. Non-additive. Never sum across regions."</span>
+
+<span class="code-cm"># total_cancelled is a formula metric: COUNT(CASE WHEN delivery_status = 'cancelled' THEN 1 END)</span>
+<span class="code-cm"># At load time the resolver expands cancellation_rate to a flat formula:</span>
+<span class="code-cm"># "(COUNT(CASE WHEN delivery_fact.delivery_status = 'cancelled' THEN 1 END))</span>
+<span class="code-cm">#  / NULLIF((COUNT(delivery_fact.delivery_id)), 0)"</span></pre>
+  </div>
+
+  <p>At load time the resolver substitutes each referenced metric name with its fully-qualified formula, producing a single flat SQL expression. The substitution is longest-name-first to prevent partial matches. Chaining is not allowed: an expression metric cannot reference another expression metric. This is validated at load time with a single forward pass, so circular or deep chains are caught before they can cause confusion at query time.</p>
+
+  <h3>Canonical filter values</h3>
+
+  <p>For every enumerated column in the physical layer, the exact valid values are declared alongside the column definition, as shown in the <code>delivery_status</code> column above. These canonical values serve three purposes: filter validation (programmatic filters match against exact strings, eliminating case-sensitivity bugs and empty results from typos); UI dropdowns (analysts pick from a controlled list rather than typing free text); and AI agent grounding (values are extracted at load time and injected into the agent's prompt context, so when a user asks "show me cancelled deliveries," the LLM writes <code>cancelled</code> (the declared value), not a guess).</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 4: DIMENSIONS + FILTERS -->
+  <!-- ============================== -->
+
+  <h2 id="dimensions">Dimensions, model filters, and metric groups</h2>
+
+  <h3>Dimensions</h3>
+
+  <p>A dimension is any attribute you can slice or filter by: order date, delivery status, store category, consumer region, zone name. Dimensions that come directly from the source fact table are declared inline on the model. Dimensions that come from joined tables are pulled in through the <code>inherits</code> list (more on that in the inheritance section). Either way, the analyst sees a flat list of available dimensions and picks one; the join resolution is invisible.</p>
+
+  <p>A special case worth knowing: <strong>degenerate dimensions</strong>: identifiers stored directly on the fact table with no corresponding dimension table (<code>order_number</code>, <code>trip_code</code>). In a delivery model, <code>delivery_id</code> is the canonical example: it is the grain column, always available for filtering and grouping, requiring no join. Degenerate dimensions are declared as regular inline dimensions and emit no JOIN clause. The most common mistake is omitting them from aggregate table declarations. If an aggregate is built at daily grain without a <code>delivery_id</code> column, any query filtering by a specific delivery must fall back to the full fact table.</p>
+
+  <h3>Model filters</h3>
+
+  <p>A model's <code>default_filters</code> silently scope every query run against it. They are applied before any user filter and cannot be overridden by user input unless the perspective explicitly sets <code>override_default_filters: true</code>.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Default filters: scoping a model to active deliveries</div>
+    <pre><span class="code-kw">default_filters</span>:
+  - <span class="code-kw">dimension</span>: delivery_status
+    <span class="code-kw">operator</span>: <span class="code-str">"!="</span>
+    <span class="code-kw">value</span>: <span class="code-str">"cancelled"</span>
+  - <span class="code-kw">dimension</span>: delivery_status
+    <span class="code-kw">operator</span>: <span class="code-str">"!="</span>
+    <span class="code-kw">value</span>: <span class="code-str">"refunded"</span></pre>
+  </div>
+
+  <p>This is how a team-specific perspective stays clean by default: at SpeedDelivery, the finance perspective excludes test orders and the operations perspective excludes archived zones. The filters live in the model definition, reviewed in a pull request, visible to everyone. When a query arrives, the engine prepends the default filters before evaluating any user-supplied conditions.</p>
+
+  <p>Default filters also participate in aggregate routing. Before an aggregate table can be used, the engine verifies that the user's filters, plus the model's defaults, are compatible with the content restrictions built into the aggregate. A mismatch forces a fallback to the full fact table, every time.</p>
+
+  <h3>Metric groups</h3>
+
+  <p>Metrics are organized into named groups for navigation and context. A group has a display name, a description, an ordered list of metrics, and use-case hints for each metric that explain when it is most relevant. Groups can nest up to four levels deep. A finance perspective might have a top-level Financial group containing Revenue and Margin subgroups, each with their own ordered metrics and use-case annotations.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 5: JOINS               -->
+  <!-- ============================== -->
+
+  <h2 id="joins">Star and snowflake schema joins</h2>
+
+  <p>Every join between tables is declared once in the physical layer as a named relationship. The model layer references join names, not join conditions. The query engine resolves the condition at query time from the physical layer declaration. This means a join condition is defined in exactly one place, reviewed in one PR, and changes in one place. A model that needs the same join three times still references the same relationship name three times.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Star schema: delivery fact with surrounding dimensions</div>
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" style="padding:24px 28px;background:#F4F3EF;">
+      <defs>
+        <marker id="jn" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#8C6D2D"/></marker>
+      </defs>
+
+      <!-- Central fact table -->
+      <rect x="270" y="108" width="160" height="80" rx="7" fill="#FFF8F0" stroke="#C4A26E" stroke-width="2"/>
+      <text x="350" y="144" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#8C6D2D" text-anchor="middle">delivery_fact</text>
+      <text x="350" y="160" font-family="Inter,sans-serif" font-size="9"  fill="#A89A7E" text-anchor="middle">consumer_id &middot; store_id</text>
+      <text x="350" y="173" font-family="Inter,sans-serif" font-size="9"  fill="#A89A7E" text-anchor="middle">driver_id &middot; zone_id</text>
+
+      <!-- Dimension tables -->
+      <!-- consumer_dim (left) -->
+      <rect x="30" y="108" width="130" height="56" rx="6" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="95"  y="132" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">consumer_dim</text>
+      <text x="95"  y="148" font-family="Inter,sans-serif" font-size="9"  fill="#5A7A9E" text-anchor="middle">consumer_id · region · tier</text>
+
+      <!-- store_dim (right) -->
+      <rect x="540" y="108" width="130" height="56" rx="6" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="605" y="132" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">store_dim</text>
+      <text x="605" y="148" font-family="Inter,sans-serif" font-size="9"  fill="#5A7A9E" text-anchor="middle">store_id · category · region</text>
+
+      <!-- zone_dim (top) -->
+      <rect x="270" y="20" width="160" height="56" rx="6" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="350" y="44"  font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">zone_dim</text>
+      <text x="350" y="60"  font-family="Inter,sans-serif" font-size="9"  fill="#5A7A9E" text-anchor="middle">zone_id · zone_name · market</text>
+
+      <!-- driver_dim (bottom) -->
+      <rect x="270" y="222" width="160" height="56" rx="6" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="350" y="246" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#2D5A8C" text-anchor="middle">driver_dim</text>
+      <text x="350" y="262" font-family="Inter,sans-serif" font-size="9"  fill="#5A7A9E" text-anchor="middle">driver_id · tier · city</text>
+
+      <!-- Join lines -->
+      <line x1="270" y1="148" x2="162" y2="148" stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#jn)"/>
+      <line x1="430" y1="148" x2="538" y2="148" stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#jn)"/>
+      <line x1="350" y1="108" x2="350" y2="78"  stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#jn)"/>
+      <line x1="350" y1="188" x2="350" y2="220" stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#jn)"/>
+
+      <!-- FK labels -->
+      <text x="216" y="142" font-family="Inter,sans-serif" font-size="8" fill="#8C6D2D" text-anchor="middle">consumer_id</text>
+      <text x="484" y="142" font-family="Inter,sans-serif" font-size="8" fill="#8C6D2D" text-anchor="middle">store_id</text>
+      <text x="370" y="96"  font-family="Inter,sans-serif" font-size="8" fill="#8C6D2D">zone_id</text>
+      <text x="370" y="210" font-family="Inter,sans-serif" font-size="8" fill="#8C6D2D">driver_id</text>
+    </svg>
+  </div>
+
+  <p>The star schema is the default pattern: a central fact table with direct foreign key joins to surrounding dimension tables. Each relationship is a named <code>many_to_one</code> declaration in the physical layer.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Relationship declaration: star schema join</div>
+    <pre><span class="code-kw">name</span>: delivery_fact__consumer_dim
+<span class="code-kw">type</span>: many_to_one
+<span class="code-kw">join_type</span>: LEFT JOIN
+<span class="code-kw">left</span>:
+  <span class="code-kw">table</span>: delivery_fact
+  <span class="code-kw">column</span>: consumer_id
+<span class="code-kw">right</span>:
+  <span class="code-kw">table</span>: consumer_dim
+  <span class="code-kw">column</span>: consumer_id
+<span class="code-cm"># join_condition is auto-derived from left/right columns</span></pre>
+  </div>
+
+  <p>The <code>type</code> field (<code>many_to_one</code>, <code>one_to_one</code>, <code>one_to_many</code>) is advisory, not runtime-enforced. It documents the expected cardinality and is used by the query engine to reason about aggregate routing (a metric that requires a <code>one_to_many</code> join cannot safely use a pre-aggregated table, for example). It does not validate row counts at query time. If the actual data in your warehouse violates the declared cardinality (a <code>many_to_one</code> join that is secretly <code>many_to_many</code> at runtime), the engine will not detect it, and the result will silently double-count. The cardinality declaration is your data contract with future model users. Make it accurate. Test it with a <code>COUNT</code> vs <code>COUNT DISTINCT</code> check on the join key before declaring it.</p>
+
+  <p>Snowflake joins extend the star by chaining through intermediate dimension tables, for example from a delivery to its consumer, then from the consumer to their historical address. Multi-hop paths are declared using a double-underscore convention in the join name: <code>delivery_fact__consumer_dim__consumer_address</code>. The resolver validates chain continuity at load time: each hop's right table must match the next hop's left table. A broken chain raises an error before any query can be served.</p>
+
+  <h3>Slowly changing dimension joins</h3>
+
+  <p>Some dimension tables maintain a history of how entity attributes changed over time. A consumer's region may have changed three times in two years. Joining without accounting for the time dimension produces incorrect or multiplied results: the query picks up multiple historical rows per consumer. An SCD join declaration adds temporal predicates automatically.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">SCD relationship declaration</div>
+    <pre><span class="code-kw">name</span>: delivery_fact__consumer_address_scd
+<span class="code-kw">type</span>: scd                          <span class="code-cm"># signals: apply temporal predicate at query time</span>
+<span class="code-kw">join_type</span>: LEFT JOIN
+<span class="code-kw">left</span>:
+  <span class="code-kw">table</span>: delivery_fact
+  <span class="code-kw">column</span>: consumer_id
+<span class="code-kw">right</span>:
+  <span class="code-kw">table</span>: consumer_address
+  <span class="code-kw">column</span>: consumer_id
+  <span class="code-kw">start_date</span>: scd_start_dt         <span class="code-cm"># column: when this record became valid</span>
+  <span class="code-kw">end_date</span>: scd_end_dt             <span class="code-cm"># column: when it stopped being valid</span>
+<span class="code-kw">join_condition</span>: delivery_fact.consumer_id = consumer_address.consumer_id
+
+<span class="code-cm"># At query time, the engine adds temporal predicates automatically:</span>
+<span class="code-cm"># AND consumer_address.scd_start_dt &lt;= delivery_fact.order_date</span>
+<span class="code-cm"># AND consumer_address.scd_end_dt   &gt;  delivery_fact.order_date</span></pre>
+  </div>
+
+  <p>The SCD relationship is declared once. Every query that uses it gets the correct temporal predicate applied automatically. The model author writes the join name; the engine handles the time logic. SCD relationships are validated at load time: a missing <code>start_date</code> or <code>end_date</code> raises an error immediately rather than producing silently incorrect results.</p>
+
+  <div class="callout">
+    <div class="callout-label">SCD convention: end_date is exclusive</div>
+    <p>The predicate above is <code>scd_end_dt &gt; event_date</code>, strictly greater-than, because this implementation treats <code>scd_end_dt</code> as the <em>first day the record is no longer valid</em> (exclusive upper bound). If your warehouse instead stores <code>scd_end_dt</code> as the <em>last day the record is valid</em> (inclusive), use <code>&gt;=</code> in the generated predicate. This is the single most bug-prone line in any SCD implementation; pick one convention and enforce it across your dimension pipeline before the model layer is built.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 6: INHERITANCE         -->
+  <!-- ============================== -->
+
+  <h2 id="inheritance">Inheritance and multi-role dimensions</h2>
+
+  <p>Two mechanisms handle reuse in the model layer. The <code>core</code> field handles vertical inheritance (a perspective extending a core model). The <code>inherits</code> list handles horizontal composition, pulling dimensions and metrics from an entirely different entity model through a declared join.</p>
+
+  <p>Models compose through three levels. Dimension entities (L1) are the reusable building blocks: <code>consumer</code>, <code>store</code>, <code>driver</code>, <code>market</code>. Core entities (L2) inherit from them and add fact-specific metrics. Perspectives (L3) inherit from a core entity and shape it for a specific team or use case.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Three-Level Inheritance: Dimension → Core → Perspective</div>
+    <svg viewBox="0 0 700 226" xmlns="http://www.w3.org/2000/svg" style="padding:20px 24px;background:#F4F3EF;">
+      <defs>
+        <marker id="ih1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+        <marker id="ih3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#581C87"/></marker>
+      </defs>
+
+      <!-- Row labels (left margin) -->
+      <text x="6" y="44"  font-family="JetBrains Mono,monospace" font-size="9" fill="#2D6A4F" font-weight="600">L1</text>
+      <text x="6" y="124" font-family="JetBrains Mono,monospace" font-size="9" fill="#2D5A8C" font-weight="600">L2</text>
+      <text x="6" y="205" font-family="JetBrains Mono,monospace" font-size="9" fill="#581C87" font-weight="600">L3</text>
+
+      <!-- L1 group background: spans all dimension entities (both clusters) -->
+      <rect x="15" y="22" width="567" height="42" rx="6" fill="rgba(45,106,79,0.05)" stroke="#2D6A4F" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- ═══ LEFT CLUSTER ═══ -->
+
+      <!-- L1 boxes -->
+      <rect x="22"  y="28" width="98" height="30" rx="5" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="71"  y="47" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D6A4F" text-anchor="middle">consumer</text>
+      <rect x="130" y="28" width="72" height="30" rx="5" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="166" y="47" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D6A4F" text-anchor="middle">store</text>
+      <rect x="214" y="28" width="72" height="30" rx="5" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="250" y="47" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D6A4F" text-anchor="middle">driver</text>
+      <rect x="298" y="28" width="76" height="30" rx="5" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="336" y="47" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D6A4F" text-anchor="middle">market</text>
+
+      <!-- Collect bracket: ticks → horizontal bar → single arrow to delivery -->
+      <line x1="71"  y1="58" x2="71"  y2="68" stroke="#2D6A4F" stroke-width="1.2"/>
+      <line x1="166" y1="58" x2="166" y2="68" stroke="#2D6A4F" stroke-width="1.2"/>
+      <line x1="250" y1="58" x2="250" y2="68" stroke="#2D6A4F" stroke-width="1.2"/>
+      <line x1="336" y1="58" x2="336" y2="68" stroke="#2D6A4F" stroke-width="1.2"/>
+      <line x1="71" y1="68" x2="336" y2="68" stroke="#2D6A4F" stroke-width="1.2"/>
+      <line x1="203" y1="68" x2="203" y2="96" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#ih1)"/>
+
+      <!-- L2: delivery - taller box, richer fill, bolder text -->
+      <rect x="140" y="98" width="126" height="44" rx="6" fill="#DDEAFF" stroke="#2D5A8C" stroke-width="2"/>
+      <text x="203" y="124" font-family="JetBrains Mono,monospace" font-size="10" fill="#1A3A6B" text-anchor="middle" font-weight="700">delivery</text>
+
+      <!-- Fork: delivery → L3 -->
+      <line x1="203" y1="142" x2="203" y2="160" stroke="#581C87" stroke-width="1.2"/>
+      <line x1="122" y1="160" x2="278" y2="160" stroke="#581C87" stroke-width="1.2"/>
+      <line x1="122" y1="160" x2="122" y2="184" stroke="#581C87" stroke-width="1.5" marker-end="url(#ih3)"/>
+      <line x1="278" y1="160" x2="278" y2="184" stroke="#581C87" stroke-width="1.5" marker-end="url(#ih3)"/>
+
+      <!-- L3: delivery perspectives -->
+      <rect x="48"  y="186" width="148" height="30" rx="5" fill="#F3E8FF" stroke="#581C87" stroke-width="1.5"/>
+      <text x="122" y="205" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#581C87" text-anchor="middle">unit_economics</text>
+      <rect x="210" y="186" width="136" height="30" rx="5" fill="#F3E8FF" stroke="#581C87" stroke-width="1.5"/>
+      <text x="278" y="205" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#581C87" text-anchor="middle">delivery_ops</text>
+
+      <!-- ═══ RIGHT CLUSTER ═══ -->
+
+      <!-- L1: plan_type -->
+      <rect x="476" y="28" width="100" height="30" rx="5" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="526" y="47" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D6A4F" text-anchor="middle">plan_type</text>
+
+      <!-- Single arrow: plan_type → subscription -->
+      <line x1="526" y1="58" x2="526" y2="96" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#ih1)"/>
+
+      <!-- L2: subscription - taller box, richer fill, bolder text -->
+      <rect x="458" y="98" width="136" height="44" rx="6" fill="#DDEAFF" stroke="#2D5A8C" stroke-width="2"/>
+      <text x="526" y="124" font-family="JetBrains Mono,monospace" font-size="10" fill="#1A3A6B" text-anchor="middle" font-weight="700">subscription</text>
+
+      <!-- Fork: subscription → L3 -->
+      <line x1="526" y1="142" x2="526" y2="160" stroke="#581C87" stroke-width="1.2"/>
+      <line x1="452" y1="160" x2="602" y2="160" stroke="#581C87" stroke-width="1.2"/>
+      <line x1="452" y1="160" x2="452" y2="184" stroke="#581C87" stroke-width="1.5" marker-end="url(#ih3)"/>
+      <line x1="602" y1="160" x2="602" y2="184" stroke="#581C87" stroke-width="1.5" marker-end="url(#ih3)"/>
+
+      <!-- L3: subscription perspectives -->
+      <rect x="390" y="186" width="124" height="30" rx="5" fill="#F3E8FF" stroke="#581C87" stroke-width="1.5"/>
+      <text x="452" y="205" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#581C87" text-anchor="middle">sub_revenue</text>
+      <rect x="540" y="186" width="124" height="30" rx="5" fill="#F3E8FF" stroke="#581C87" stroke-width="1.5"/>
+      <text x="602" y="205" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#581C87" text-anchor="middle">sub_lifecycle</text>
+
+      <!-- Max depth annotation (top-right corner) -->
+      <rect x="606" y="4" width="88" height="38" rx="4" fill="#FEF2F2" stroke="#E5B4BC" stroke-width="1"/>
+      <text x="650" y="20" font-family="Inter,sans-serif" font-size="8" font-weight="600" fill="#8C2D2D" text-anchor="middle">Max depth: 3</text>
+      <text x="650" y="34" font-family="Inter,sans-serif" font-size="7.5" fill="#8C2D2D" text-anchor="middle">L4+ rejected at load</text>
+    </svg>
+  </div>
+
+  <h3>Three rules that keep inheritance manageable</h3>
+
+  <p>Inheritance without guardrails creates the same problems it solves. Implicit transitive dependencies, unbounded depth, and duplicate names from multi-path inheritance are how object-oriented hierarchies collapse in application code. Three strict constraints prevent this in the model layer.</p>
+
+  <p><strong>Rule 1: Explicit, not transitive.</strong> If entity A inherits B and C, and entity D inherits A, then D does <em>not</em> automatically gain B and C. D must list them explicitly in its own <code>inherits</code> block. Every model's complete dependency graph is readable from its own file. You never need to trace a chain of files to understand what a model includes. The cost is some declaration repetition. The benefit is that no model has invisible dependencies.</p>
+
+  <p><strong>Rule 2: Maximum depth of three levels.</strong> Dimension (L1) → Core (L2) → Perspective (L3). No deeper nesting. The model loader enforces this with a hard depth limit: any chain exceeding three levels raises a <code>ValueError</code> at load time. Deeper hierarchies create resolution ambiguity and make the model harder to reason about. Three levels cover every real composition pattern encountered in practice.</p>
+
+  <p><strong>Rule 3: Circular dependency detection.</strong> The model loader tracks a visited set during recursive resolution. If a model appears twice in the resolution chain, the loader raises a <code>ValueError</code> with the full cycle path (<code>A → B → C → A</code>) before any query can be generated. This is caught at load time, not at query time. You cannot publish a model with a circular dependency.</p>
+
+  <h3>Cross-model composition</h3>
+
+  <p>A delivery model that needs to expose consumer attributes (tier, region, signup date) does not redeclare those attributes. It inherits them from the consumer model through a declared join path. The resolver pulls all consumer dimensions into the delivery model's namespace, tagging each with the join name it requires. At query time, when a user selects a consumer dimension, the engine adds that join to the query automatically.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Cross-model inheritance: pulling dimensions from other entities</div>
+    <pre><span class="code-kw">inherits</span>:
+  - <span class="code-kw">model</span>: consumer
+    <span class="code-kw">join</span>: delivery_fact__consumer_dim
+    <span class="code-cm"># → consumer_id, consumer_tier, consumer_region, ... all added to namespace</span>
+    <span class="code-cm"># → each tagged with _join: "delivery_fact__consumer_dim"</span>
+
+  - <span class="code-kw">model</span>: zone
+    <span class="code-kw">join</span>: delivery_fact__zone_dim
+    <span class="code-cm"># → zone_name, zone_market, ... all added to namespace</span></pre>
+  </div>
+
+  <h3>Cross-fact composition: the Customer 360 pattern</h3>
+
+  <p>The most powerful form of composition combines metrics from multiple fact tables into a single model. A Customer 360 view needs order metrics (revenue, order count), support metrics (ticket count, resolution time), and engagement metrics (login frequency, feature usage). Each lives in a different fact table with its own grain. The semantic layer composes them through a shared dimension anchor.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Customer 360: Cross-Fact Metric Composition</div>
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="padding:24px 32px;background:#F4F3EF;">
+      <defs>
+        <marker id="cx1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+        <marker id="cx2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+        <marker id="cx3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C6D2D"/></marker>
+      </defs>
+
+      <!-- Customer 360 model (center) -->
+      <rect x="250" y="120" width="200" height="80" rx="8" fill="#F0F5FF" stroke="#2D5A8C" stroke-width="2"/>
+      <text x="350" y="148" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#1A3A6B" text-anchor="middle">customer_360</text>
+      <text x="350" y="166" font-family="Inter,sans-serif" font-size="9" fill="#3D4A5C" text-anchor="middle">source: customer_dim</text>
+      <text x="350" y="182" font-family="Inter,sans-serif" font-size="9" fill="#3D4A5C" text-anchor="middle">unified view of all customer metrics</text>
+
+      <!-- Order fact (left) -->
+      <rect x="20" y="30" width="150" height="70" rx="6" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="95" y="54" font-family="JetBrains Mono,monospace" font-size="10" fill="#8C6D2D" text-anchor="middle">order_fact</text>
+      <text x="95" y="72" font-family="Inter,sans-serif" font-size="8" fill="#6B6860" text-anchor="middle">total_revenue</text>
+      <text x="95" y="86" font-family="Inter,sans-serif" font-size="8" fill="#6B6860" text-anchor="middle">total_orders</text>
+
+      <!-- Support fact (right) -->
+      <rect x="530" y="30" width="150" height="70" rx="6" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="605" y="54" font-family="JetBrains Mono,monospace" font-size="10" fill="#2D6A4F" text-anchor="middle">support_fact</text>
+      <text x="605" y="72" font-family="Inter,sans-serif" font-size="8" fill="#3D5A4C" text-anchor="middle">total_tickets</text>
+      <text x="605" y="86" font-family="Inter,sans-serif" font-size="8" fill="#3D5A4C" text-anchor="middle">avg_resolution_time</text>
+
+      <!-- Engagement fact (bottom) -->
+      <rect x="275" y="240" width="150" height="70" rx="6" fill="#FEF2F2" stroke="#8C2D2D" stroke-width="1.5"/>
+      <text x="350" y="264" font-family="JetBrains Mono,monospace" font-size="10" fill="#8C2D2D" text-anchor="middle">engagement_fact</text>
+      <text x="350" y="282" font-family="Inter,sans-serif" font-size="8" fill="#6B4848" text-anchor="middle">login_count</text>
+      <text x="350" y="296" font-family="Inter,sans-serif" font-size="8" fill="#6B4848" text-anchor="middle">feature_usage_score</text>
+
+      <!-- Join arrows -->
+      <line x1="170" y1="75" x2="248" y2="140" stroke="#8C6D2D" stroke-width="1.5" marker-end="url(#cx3)"/>
+      <line x1="530" y1="75" x2="452" y2="140" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#cx2)"/>
+      <line x1="350" y1="202" x2="350" y2="238" stroke="#8C2D2D" stroke-width="1.5" marker-end="url(#cx1)"/>
+
+      <!-- Join labels -->
+      <text x="190" y="100" font-family="JetBrains Mono,monospace" font-size="7" fill="#8C6D2D">customer_dim__order_fact</text>
+      <text x="460" y="100" font-family="JetBrains Mono,monospace" font-size="7" fill="#2D6A4F">customer_dim__support_fact</text>
+      <text x="360" y="224" font-family="JetBrains Mono,monospace" font-size="7" fill="#8C2D2D">customer_dim__engagement_fact</text>
+
+      <!-- Customer dim (anchor indicator) -->
+      <rect x="310" y="4" width="80" height="24" rx="4" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1"/>
+      <text x="350" y="20" font-family="JetBrains Mono,monospace" font-size="8" fill="#2D5A8C" text-anchor="middle">customer_dim</text>
+      <text x="350" y="38" font-family="Inter,sans-serif" font-size="7" fill="#5A7A9E" text-anchor="middle">shared anchor</text>
+    </svg>
+  </div>
+
+  <div class="code-block">
+    <div class="code-block-label">Customer 360: composing metrics from multiple fact tables</div>
+    <pre><span class="code-kw">model</span>: customer_360
+<span class="code-kw">type</span>: core
+<span class="code-kw">source_table</span>: customer_dim          <span class="code-cm"># the shared anchor</span>
+<span class="code-kw">date_field</span>: created_at
+
+<span class="code-kw">dimensions</span>:
+  - <span class="code-kw">name</span>: customer_id
+    <span class="code-kw">column</span>: customer_id
+    <span class="code-kw">type</span>: integer
+  - <span class="code-kw">name</span>: customer_tier
+    <span class="code-kw">column</span>: tier
+    <span class="code-kw">type</span>: categorical
+
+<span class="code-kw">metrics</span>:
+  - <span class="code-kw">name</span>: total_customers
+    <span class="code-kw">display_name</span>: <span class="code-str">"Total Customers"</span>
+    <span class="code-kw">formula</span>: <span class="code-str">"COUNT(customer_id)"</span>
+    <span class="code-kw">type</span>: integer
+
+<span class="code-kw">inherits</span>:
+  - <span class="code-kw">model</span>: order                    <span class="code-cm"># pulls total_revenue, total_orders</span>
+    <span class="code-kw">join</span>: customer_dim__order_fact
+
+  - <span class="code-kw">model</span>: support                  <span class="code-cm"># pulls total_tickets, avg_resolution_time</span>
+    <span class="code-kw">join</span>: customer_dim__support_fact
+
+  - <span class="code-kw">model</span>: engagement               <span class="code-cm"># pulls login_count, feature_usage_score</span>
+    <span class="code-kw">join</span>: customer_dim__engagement_fact</pre>
+  </div>
+
+  <p>When an analyst queries <code>total_revenue</code> and <code>total_tickets</code> together, the query engine automatically includes both JOINs. When they query only <code>total_revenue</code>, only the order_fact JOIN is added. The model author declares the composition once; the engine handles join optimization per query. This is how a single model serves questions that would otherwise require manual SQL across three different fact tables.</p>
+
+  <div class="callout">
+    <div class="callout-label">Why cross-fact composition matters</div>
+    <p><strong>Prevents metric duplication.</strong> Without composition, teams copy metric definitions into their own models. Two definitions of "total_revenue" will drift. With composition, there is one definition in the order model, inherited everywhere it is needed.</p>
+    <p><strong>Enables unified analysis.</strong> "Show me customers with high revenue but low engagement" requires metrics from two fact tables. Cross-fact composition makes this a single query against a single model.</p>
+    <p><strong>Simplifies onboarding.</strong> A new analyst does not need to know which fact table owns which metric. They see one model with all customer metrics, pick what they need, and the engine handles the joins.</p>
+  </div>
+
+  <h3>Conformed dimensions</h3>
+
+  <p>Cross-model inheritance enables <em>conformed dimensions</em>: dimension tables that carry the same meaning regardless of which fact table you reach them through. At SpeedDelivery, <code>consumer_dim</code> means the same thing whether you join to it from <code>delivery_fact</code>, <code>payment_fact</code>, or <code>support_ticket_fact</code>. A report comparing revenue per consumer tier against support ticket rate per consumer tier is only meaningful if both models join the same <code>consumer_dim</code> with the same definition of "tier"; conformed dimensions guarantee this. When the consumer model is updated, every domain that inherits from it picks up the change automatically. The practical implication: dimension models should be designed to be shared, not owned by a single fact team. A conformed dimension belongs to the data platform.</p>
+
+  <h3>Multi-role dimensions</h3>
+
+  <p>Some fact tables join to the same dimension table more than once through different foreign keys. A delivery has both an ordering consumer and a receiving consumer. Both are rows in <code>consumer_dim</code>. Both are referenced by separate foreign keys in <code>delivery_fact</code>. Without role separation, the second join produces a SQL alias collision and "show me revenue by consumer region" is ambiguous: which consumer?</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Role-Based Joins: Same Dimension, Different Semantic Roles</div>
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="padding:24px 32px;background:#F4F3EF;">
+      <defs>
+        <marker id="rb1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D5A8C"/></marker>
+        <marker id="rb2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C2D2D"/></marker>
+      </defs>
+
+      <!-- Fact table -->
+      <rect x="200" y="60" width="300" height="80" rx="8" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="350" y="82" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#8C6D2D" text-anchor="middle">delivery_fact</text>
+      <line x1="212" y1="90" x2="488" y2="90" stroke="#E5D5B8" stroke-width="1"/>
+      <text x="290" y="110" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B6860" text-anchor="middle">consumer_id</text>
+      <text x="290" y="126" font-family="Inter,sans-serif" font-size="8" fill="#888" text-anchor="middle">(ordering consumer)</text>
+      <text x="430" y="110" font-family="JetBrains Mono,monospace" font-size="9" fill="#6B6860" text-anchor="middle">recipient_consumer_id</text>
+      <text x="430" y="126" font-family="Inter,sans-serif" font-size="8" fill="#888" text-anchor="middle">(receiving consumer)</text>
+
+      <!-- Consumer dim - standard role -->
+      <rect x="20" y="8" width="132" height="44" rx="6" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="86" y="28" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#2D5A8C" text-anchor="middle">consumer_dim</text>
+      <text x="86" y="44" font-family="Inter,sans-serif" font-size="8.5" fill="#3D4A5C" text-anchor="middle">AS consumer</text>
+
+      <!-- Consumer dim - recipient role -->
+      <rect x="548" y="8" width="132" height="44" rx="6" fill="#FEF2F2" stroke="#8C2D2D" stroke-width="1.5"/>
+      <text x="614" y="28" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#8C2D2D" text-anchor="middle">consumer_dim</text>
+      <text x="614" y="44" font-family="Inter,sans-serif" font-size="8.5" fill="#8C2D2D" text-anchor="middle">AS recipient_consumer</text>
+
+      <!-- Arrows -->
+      <line x1="86"  y1="54" x2="270" y2="60" stroke="#2D5A8C" stroke-width="1.5" marker-end="url(#rb1)"/>
+      <line x1="614" y1="54" x2="448" y2="60" stroke="#8C2D2D" stroke-width="1.5" marker-end="url(#rb2)"/>
+
+      <!-- Labels -->
+      <text x="170" y="50" font-family="JetBrains Mono,monospace" font-size="8" fill="#2D5A8C" text-anchor="middle">many_to_one</text>
+      <text x="540" y="50" font-family="JetBrains Mono,monospace" font-size="8" fill="#8C2D2D" text-anchor="middle">role: recipient</text>
+
+      <!-- Generated SQL bar -->
+      <rect x="60" y="156" width="580" height="28" rx="5" fill="#1A1916"/>
+      <text x="350" y="174" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#93B8D4" text-anchor="middle">LEFT JOIN consumer_dim AS recipient_consumer ON delivery_fact.recipient_consumer_id = recipient_consumer.consumer_id</text>
+    </svg>
+  </div>
+
+  <div class="code-block">
+    <div class="code-block-label">Multi-role inheritance: same physical table, two roles</div>
+    <pre><span class="code-kw">inherits</span>:
+  - <span class="code-kw">model</span>: consumer
+    <span class="code-kw">join</span>: delivery_fact__consumer_dim
+    <span class="code-cm"># standard role: consumer_region, consumer_segment, consumer_tier ...</span>
+
+  - <span class="code-kw">model</span>: consumer
+    <span class="code-kw">join</span>: delivery_fact__recipient_consumer_dim
+    <span class="code-kw">role</span>: recipient
+    <span class="code-cm"># role-prefixed: recipient_consumer_region, recipient_consumer_segment ...</span></pre>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">What role-based inheritance resolves automatically</div>
+    <p><strong>1. Name prefixing.</strong> All dimensions from the second inheritance get the role prefix: <code>recipient_consumer_region</code>, <code>recipient_consumer_segment</code>, <code>recipient_consumer_tier</code>. No name collisions, no ambiguity.</p>
+    <p><strong>2. SQL aliasing.</strong> The query engine emits <code>LEFT JOIN consumer_dim AS recipient_consumer</code> with the join condition rewritten to use the aliased table name. Two joins to the same physical table, each with its own alias.</p>
+    <p><strong>3. UI separation.</strong> The model browser shows two distinct groups: "Consumer" and "Recipient Consumer", each with its own set of dimensions. An analyst selecting "recipient consumer region" gets unambiguous SQL with no extra configuration.</p>
+  </div>
+
+  <p>Without role qualifiers, inheriting <code>consumer</code> twice would produce duplicate dimension names, ambiguous SQL, and a broken UI. The role is validated at load time: a duplicate inheritance without a role raises an error before any query is generated.</p>
+
+  <h3>Multi-hop formula resolution</h3>
+
+  <p>Sometimes a metric needs a column that is two or more joins away from the source table. A delivery metric might need a market-level attribute from <code>market_dim</code>, reachable only through <code>delivery_fact → store_dim → market_dim</code>. Requiring the model author to flatten this into a single-hop reference would mean duplicating columns across physical tables.</p>
+
+  <p>Metric formulas support multi-hop relationship paths using the same double-underscore naming convention as join names:</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Single-hop and multi-hop formula references</div>
+    <pre><span class="code-cm"># Single-hop: one join (delivery_fact → driver_payout)</span>
+<span class="code-kw">formula</span>: <span class="code-str">"SUM(delivery_fact__driver_payout.driver_payout_amount)"</span>
+
+<span class="code-cm"># Multi-hop: two chained joins (delivery_fact → store_dim → market_dim)</span>
+<span class="code-kw">formula</span>: <span class="code-str">"SUM(delivery_fact__store_dim__market_dim.region_revenue)"</span></pre>
+  </div>
+
+  <p>The model loader splits the path on double-underscores into consecutive hops and validates chain continuity: the right table of hop N must equal the left table of hop N+1. If any hop's relationship is undefined or the chain is discontinuous, the loader raises an error at load time. All intermediate joins are collected and passed to the query engine, which emits them in the correct order. The model author writes a single path string. The resolution machinery is entirely hidden.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 7: AGGREGATES          -->
+  <!-- ============================== -->
+
+  <h2 id="aggregates">Aggregate-aware context switching</h2>
+
+  <p>Pre-aggregated tables trade flexibility for speed. SpeedDelivery's daily delivery aggregate pre-computes totals by date, zone, store, and status, reducing a 100-million-row scan to 10,000 rows for common queries. But an aggregate is not a general-purpose replacement for the fact table. It was built at a specific grain, under specific assumptions, and possibly covering only a subset of rows. Using it for the wrong query produces a number that looks right and is wrong.</p>
+
+  <p>The semantic model declares aggregate sources directly on the core model. Every alternative is explicit, versioned, and reviewed.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Aggregate source declaration on a core model</div>
+    <pre><span class="code-kw">aggregate_sources</span>:
+  - <span class="code-kw">table</span>: daily_delivery_agg
+    <span class="code-kw">date_field</span>: order_date
+
+    <span class="code-kw">column_mappings</span>:              <span class="code-cm"># metric name → aggregate table column</span>
+      total_revenue:    total_amount
+      total_orders:     delivery_count
+      total_cancelled:  cancelled_count
+      total_commission: commission_amount
+      total_discounts:  discount_amount
+
+    <span class="code-kw">content_filters</span>:              <span class="code-cm"># restrictions this aggregate was built with</span>
+      - <span class="code-kw">dimension</span>: delivery_status
+        <span class="code-kw">operator</span>: <span class="code-str">"!="</span>
+        <span class="code-kw">value</span>: <span class="code-str">"cancelled"</span></pre>
+  </div>
+
+  <p>The <code>column_mappings</code> field tells the engine how to translate metric names into the aggregate table's column names. The <code>content_filters</code> field declares what subset of data the aggregate was built over. These two fields together are what make the routing decision safe.</p>
+
+  <h3>The routing decision</h3>
+
+  <p>Before every query, the engine evaluates whether the aggregate can safely serve the entire request. The check is binary: the aggregate answers the whole query, or it answers none of it. No partial routing. The rules are evaluated in order, and the first failure short-circuits the check immediately.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Aggregate Eligibility: The Nine-Rule Check</div>
+    <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="padding:28px 32px;background:#F4F3EF;">
+      <defs>
+        <marker id="ag1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#2D6A4F"/></marker>
+        <marker id="ag2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#8C2D2D"/></marker>
+      </defs>
+
+      <!-- Query input -->
+      <rect x="20" y="24" width="160" height="52" rx="7" fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.5"/>
+      <text x="100" y="44" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#2D5A8C" text-anchor="middle">Incoming Query</text>
+      <text x="100" y="60" font-family="Inter,sans-serif" font-size="9" fill="#3D4A5C" text-anchor="middle">metrics + dims + filters</text>
+
+      <!-- Arrow to rules -->
+      <line x1="182" y1="50" x2="218" y2="50" stroke="#2D5A8C" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ag1)"/>
+
+      <!-- Rules box -->
+      <rect x="220" y="4" width="260" height="320" rx="8" fill="#FFF" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="350" y="26" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#8C6D2D" text-anchor="middle">ELIGIBILITY CHECK</text>
+      <line x1="232" y1="34" x2="468" y2="34" stroke="#E5D5B8" stroke-width="1"/>
+
+      <!-- Nine rules -->
+      <text x="244" y="56" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">1.</tspan> Every formula metric has a mapped</text>
+      <text x="256" y="70" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C">aggregate column</text>
+
+      <text x="244" y="92" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">2.</tspan> Every expression metric's base</text>
+      <text x="256" y="106" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C">metrics are also mapped</text>
+
+      <text x="244" y="128" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">3.</tspan> No cross-fact joins required</text>
+
+      <text x="244" y="152" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">4.</tspan> No aggregation override configured</text>
+
+      <text x="244" y="176" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">5.</tspan> All join FK columns exist on aggregate</text>
+
+      <text x="244" y="200" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">6.</tspan> All selected dimensions exist on</text>
+      <text x="256" y="214" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C">aggregate (incl. filters &amp; default filters)</text>
+
+      <text x="244" y="236" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">7.</tspan> No calculated attributes present</text>
+
+      <text x="244" y="260" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">8.</tspan> Content filters compatible with</text>
+      <text x="256" y="274" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C">query filters (operator-aware)</text>
+
+      <text x="244" y="296" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C"><tspan font-weight="600" fill="#8C6D2D">9.</tspan> Date field exists on aggregate</text>
+      <text x="256" y="310" font-family="Inter,sans-serif" font-size="9.5" fill="#3D4A5C">(required for SCD joins &amp; time periods)</text>
+
+      <!-- All pass path -->
+      <text x="350" y="338" font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="#2D6A4F" text-anchor="middle">ALL 9 PASS</text>
+      <line x1="350" y1="344" x2="350" y2="364" stroke="#2D6A4F" stroke-width="1.5" marker-end="url(#ag1)"/>
+
+      <!-- Aggregate result -->
+      <rect x="280" y="346" width="140" height="28" rx="6" fill="#E8F5EF" stroke="#2D6A4F" stroke-width="1.5"/>
+      <text x="350" y="365" font-family="JetBrains Mono,monospace" font-size="9" fill="#2D6A4F" text-anchor="middle">daily_delivery_agg</text>
+
+      <!-- Any fail path -->
+      <line x1="482" y1="160" x2="530" y2="160" stroke="#8C2D2D" stroke-width="1.5" marker-end="url(#ag2)"/>
+      <text x="506" y="150" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="#8C2D2D" text-anchor="middle">ANY FAIL</text>
+
+      <!-- Fact table fallback -->
+      <rect x="532" y="140" width="140" height="40" rx="6" fill="#FFF8F0" stroke="#C4A26E" stroke-width="1.5"/>
+      <text x="602" y="158" font-family="JetBrains Mono,monospace" font-size="9" fill="#8C6D2D" text-anchor="middle">delivery_fact</text>
+      <text x="602" y="172" font-family="Inter,sans-serif" font-size="7.5" fill="#6B6860" text-anchor="middle">full table scan</text>
+
+      <!-- Labels -->
+      <text x="350" y="390" font-family="Inter,sans-serif" font-size="8" fill="#2D6A4F" text-anchor="middle">Pre-aggregated, faster query</text>
+      <text x="602" y="196" font-family="Inter,sans-serif" font-size="8" fill="#8C2D2D" text-anchor="middle">Always correct, potentially slower</text>
+    </svg>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">Three rules that need context</div>
+    <p><strong>Rule 3: No cross-fact joins required.</strong> Some metrics reference columns reachable only through a join to a second fact table (e.g., a delivery metric that needs a column from <code>payment_fact</code>). Pre-aggregated tables are built from a single fact table and cannot resolve those cross-fact paths. If any requested metric requires such a join, the aggregate is ineligible regardless of everything else.</p>
+    <p><strong>Rule 4: No aggregation override configured.</strong> Individual metrics can declare <code>force_fact_table: true</code> to opt out of aggregate routing permanently, typically for metrics whose definition requires row-level access that no aggregate can replicate (e.g., a percentile computed over the full distribution). If any metric in the query carries this flag, the aggregate is bypassed for the entire query.</p>
+    <p><strong>Rule 7: No calculated attributes present.</strong> Calculated attributes are dimensions whose values are derived at query time from an expression over raw columns (e.g., <code>CASE WHEN total_amount > 100 THEN 'high' ELSE 'low' END AS order_tier</code>). Because they require access to the underlying row-level columns, they cannot be satisfied by a pre-aggregated table that only stores pre-computed totals.</p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-label">Why content filter compatibility is the subtlest rule</div>
+    <p>The aggregate above excludes cancelled deliveries. If a user queries revenue by zone with no status filter, routing to the aggregate silently drops all cancelled-order revenue from the total. The number looks plausible. It is wrong by the cancellation amount, which varies by zone, day, and season.</p>
+    <p>The engine checks three cases: does the user filter to only delivered orders (satisfies the restriction)? Does the user filter to non-cancelled orders exactly (matches the restriction)? Or does the user apply no status filter at all? Only the first two cases allow aggregate routing. The third always falls back to the full fact table.</p>
+  </div>
+
+  <p>The routing decision is also irreversible within a query. An early prototype tried pulling some metrics from the aggregate and others from the fact table in a single response. The results were subtly wrong when the two sources interacted: different grains, different implicit filters, combined totals that didn't reconcile. Eliminating partial routing eliminated an entire class of silent errors and reduced the routing logic to a single, auditable decision point.</p>
+
+  <div class="pull-quote">
+    <p>"The aggregate is not a shortcut. It is a governed alternative that earns its place by passing every eligibility check, every time."</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 8: QUERY GENERATION    -->
+  <!-- ============================== -->
+
+  <h2 id="generation">Query generation: the engine that reads the model</h2>
+
+  <p>Everything defined in the model (entities, joins, metrics, filters, aggregate sources) is consumed by a single pure function. Given a perspective ID, a list of metrics, a list of dimensions, a filter tree, and a date range, it returns SQL. No side effects, no randomness. The same inputs always produce the same output.</p>
+
+  <p>The engine does not make decisions. All decisions are encoded in the model: which joins are valid, which aggregates are eligible, which filters apply by default. The engine executes those decisions deterministically in eight steps. This is what makes the output traceable: every clause in the generated SQL points back to a specific declaration in the model.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-caption">Eight-Step Generation Pipeline</div>
+    <svg viewBox="0 0 700 108" xmlns="http://www.w3.org/2000/svg" style="padding:20px 24px 16px;background:#F4F3EF;">
+      <defs>
+        <marker id="pipe-arr" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#2D5A8C"/></marker>
+      </defs>
+      <g font-family="Inter,sans-serif" font-size="9" fill="#2D5A8C" font-weight="700" text-anchor="middle">
+        <text x="31"  y="18">01</text><text x="114" y="18">02</text>
+        <text x="197" y="18">03</text><text x="280" y="18">04</text>
+        <text x="363" y="18">05</text><text x="446" y="18">06</text>
+        <text x="529" y="18">07</text><text x="612" y="18">08</text>
+      </g>
+      <g fill="#EEF4FF" stroke="#2D5A8C" stroke-width="1.2">
+        <rect x="4"   y="24" width="54" height="44" rx="5"/>
+        <rect x="87"  y="24" width="54" height="44" rx="5"/>
+        <rect x="170" y="24" width="54" height="44" rx="5"/>
+        <rect x="253" y="24" width="54" height="44" rx="5"/>
+        <rect x="336" y="24" width="54" height="44" rx="5"/>
+        <rect x="419" y="24" width="54" height="44" rx="5"/>
+        <rect x="502" y="24" width="54" height="44" rx="5"/>
+        <rect x="585" y="24" width="54" height="44" rx="5"/>
+      </g>
+      <g font-family="Inter,sans-serif" font-size="8.5" fill="#1A1916" text-anchor="middle">
+        <text x="31"  y="42">Load</text>   <text x="31"  y="54">model</text>
+        <text x="114" y="42">Build</text>  <text x="114" y="54">maps</text>
+        <text x="197" y="42">Collect</text><text x="197" y="54">joins</text>
+        <text x="280" y="42">Check</text>  <text x="280" y="54">agg</text>
+        <text x="363" y="42">Build</text>  <text x="363" y="54">JOINs</text>
+        <text x="446" y="42">Build</text>  <text x="446" y="54">SELECT</text>
+        <text x="529" y="42">Build</text>  <text x="529" y="54">WHERE</text>
+        <text x="612" y="42">Assemble</text><text x="612" y="54">SQL</text>
+      </g>
+      <g stroke="#2D5A8C" stroke-width="1.2" fill="none" marker-end="url(#pipe-arr)">
+        <line x1="59"  y1="46" x2="85"  y2="46"/>
+        <line x1="142" y1="46" x2="168" y2="46"/>
+        <line x1="225" y1="46" x2="251" y2="46"/>
+        <line x1="308" y1="46" x2="334" y2="46"/>
+        <line x1="391" y1="46" x2="417" y2="46"/>
+        <line x1="474" y1="46" x2="500" y2="46"/>
+        <line x1="557" y1="46" x2="583" y2="46"/>
+      </g>
+      <text x="639" y="82" font-family="Inter,sans-serif" font-size="8" fill="#2D5A8C" text-anchor="middle">SQL +</text>
+      <text x="639" y="92" font-family="Inter,sans-serif" font-size="8" fill="#2D5A8C" text-anchor="middle">metadata</text>
+    </svg>
+  </div>
+
+  <ul class="step-list">
+    <li>
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Load and flatten the model</div>
+        <div class="step-desc">Resolves the perspective ID to a model name, loads the fully resolved model with all inheritance chains flattened into a single namespace. Inherited dimensions are tagged with their required join name.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">Build dimension and metric lookup maps</div>
+        <div class="step-desc">Constructs two dictionaries keyed by name, one for dimensions and one for metrics, covering the base model and all inherited models. Role-prefixed names are indexed under their aliased names. These maps are the lookup table for every subsequent step.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Collect required joins</div>
+        <div class="step-desc">Walks the requested dimensions, each metric's <code>requiredJoins</code> list, the user's filter tree, and the model's default filters. Every dependency goes into a set; duplicates collapse automatically. This set is the sole input to step five.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">Check aggregate eligibility</div>
+        <div class="step-desc">Evaluates each declared aggregate source against eligibility rules. The first one that passes is selected. If none passes, the full fact table is used. This step determines which table name appears in FROM and which formula strategy SELECT uses; nothing else changes downstream.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <div class="step-title">Build JOIN clauses</div>
+        <div class="step-desc">Emits a clause for each relationship in the required join set. Standard joins get a simple equality condition. SCD joins get temporal predicates matching event date against the dimension's validity window. Role-based joins get an <code>AS alias</code> clause with the alias recorded for downstream column references.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">06</div>
+      <div class="step-content">
+        <div class="step-title">Build SELECT clause</div>
+        <div class="step-desc">Processes dimensions first, applying <code>DATE_TRUNC</code> wrapping when a granularity suffix like <code>__month</code> is present, then metrics. In aggregate mode, formulas are rebuilt from the aggregate's mapped columns. Time-period comparisons expand one metric into three expressions: current period, prior period, and percentage change.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">07</div>
+      <div class="step-content">
+        <div class="step-title">Build WHERE clause</div>
+        <div class="step-desc">Applies the model's default filters first, then the user's filter tree. Validates every operator against an explicit allowlist (equality, comparison, <code>IN</code>/<code>NOT IN</code>, <code>LIKE</code>/<code>NOT LIKE</code>, null checks, and a between pair). Handles <code>IN</code>/<code>NOT IN</code> values in list, JSON string, and comma-separated formats. Appends the date range condition last, on the model's effective date field.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">08</div>
+      <div class="step-content">
+        <div class="step-title">Assemble final SQL</div>
+        <div class="step-desc">Joins all clauses in order: SELECT, FROM, JOINs, WHERE, GROUP BY, LIMIT. The output is readable, not optimized: no reordering, no subquery folding, no optimizer hints. Every clause must be traceable by a human back to a specific model definition.</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="code-block">
+    <div class="code-block-label">Model → SQL: end-to-end example</div>
+    <pre><span class="code-cm"># SpeedDelivery - operations team querying 2025 annual delivery performance</span>
+perspective: <span class="code-str">"delivery_operations"</span>
+metrics:     [<span class="code-str">"total_revenue"</span>, <span class="code-str">"cancellation_rate"</span>]
+dimensions:  [<span class="code-str">"order_date__month"</span>, <span class="code-str">"zone_name"</span>]
+filters:     [{dimension: <span class="code-str">"delivery_status"</span>, op: <span class="code-str">"!="</span>, value: <span class="code-str">"cancelled"</span>}]
+date_range:  [<span class="code-str">"2025-01-01"</span>, <span class="code-str">"2025-12-31"</span>]
+
+<span class="code-cm"># Generated SQL  (daily_delivery_agg selected - user filter satisfies content restriction)</span>
+<span class="code-kw">SELECT</span>
+  DATE_TRUNC(<span class="code-str">'MONTH'</span>, daily_delivery_agg.order_date)  <span class="code-kw">AS</span> order_date__month,
+  zone_dim.zone_name                                    <span class="code-kw">AS</span> zone_name,
+  SUM(daily_delivery_agg.total_amount)                  <span class="code-kw">AS</span> total_revenue,
+  SUM(daily_delivery_agg.cancelled_count)
+    / NULLIF(SUM(daily_delivery_agg.delivery_count), 0) <span class="code-kw">AS</span> cancellation_rate
+<span class="code-kw">FROM</span> analytics.daily_delivery_agg <span class="code-kw">AS</span> daily_delivery_agg
+<span class="code-kw">LEFT JOIN</span> zone_dim
+  <span class="code-kw">ON</span> daily_delivery_agg.zone_id = zone_dim.zone_id
+<span class="code-kw">WHERE</span>
+  daily_delivery_agg.delivery_status != <span class="code-str">'cancelled'</span>   <span class="code-cm"># user filter - always emitted to WHERE</span>
+  <span class="code-cm"># note: the aggregate already excludes cancelled rows by construction;</span>
+  <span class="code-cm"># this filter is a no-op at runtime but is still written out for traceability</span>
+  <span class="code-kw">AND</span> daily_delivery_agg.order_date
+        <span class="code-kw">BETWEEN</span> DATE <span class="code-str">'2025-01-01'</span> <span class="code-kw">AND</span> DATE <span class="code-str">'2025-12-31'</span>
+<span class="code-kw">GROUP BY</span>
+  DATE_TRUNC(<span class="code-str">'MONTH'</span>, daily_delivery_agg.order_date),
+  zone_dim.zone_name
+<span class="code-kw">LIMIT</span> <span class="code-num">1000</span></pre>
+  </div>
+
+  <p>The SELECT builds dimension expressions first, applying <code>DATE_TRUNC</code> wrapping for granularity suffixes like <code>__month</code>, then metrics, using aggregate column formulas when the aggregate was selected or original fact formulas otherwise. The WHERE applies default model filters, then user filters, then the date range. Every step is mechanical: no inference, no optimization, no black box.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 9: TESTS               -->
+  <!-- ============================== -->
+
+  <h2 id="tests">Tests: enforcing correctness at every path</h2>
+
+  <p>A semantic layer with a bug in a formula is more dangerous than no semantic layer at all. Without a governed model, analysts know they are on their own and verify everything. With one, they trust the output and stop checking. The test suite is what earns that trust: not by checking that queries run, but by asserting the exact SQL produced for every scenario.</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Exact SQL assertion: aggregate fallback test</div>
+    <pre><span class="code-kw">def</span> <span class="code-fn">test_aggregate_content_filter_fallback</span>(self):
+    <span class="code-cm"># No status filter → aggregate cannot guarantee it excludes cancellations</span>
+    <span class="code-cm"># → must fall back to the full fact table</span>
+    result = <span class="code-fn">generate_sql</span>(
+        perspective=<span class="code-str">"p_delivery_economics"</span>,
+        metrics=[<span class="code-str">"total_revenue"</span>],
+        dimensions=[<span class="code-str">"zone_name"</span>],
+        filters=[],
+        model_data=self.model_data,
+    )
+    expected = <span class="code-fn">normalize</span>(<span class="code-str">"""
+        SELECT
+          zone_dim.zone_name AS zone_name,
+          SUM(delivery_fact.total_amount) AS total_revenue
+        FROM analytics.delivery_fact AS delivery_fact
+        LEFT JOIN zone_dim ON delivery_fact.zone_id = zone_dim.zone_id
+        GROUP BY zone_dim.zone_name
+        LIMIT 1000
+    """</span>)
+    self.<span class="code-fn">assertEqual</span>(<span class="code-fn">normalize</span>(result[<span class="code-str">"sql"</span>]), expected)</pre>
+  </div>
+
+  <p>The tests do not assert that output "contains" a keyword. They assert the exact SQL string after whitespace normalization. A test that asserts partial output can pass while the generated SQL is subtly wrong: wrong join order, wrong alias, wrong filter placement. Exact output forces every clause to be correct. When a test fails, the diff between expected and actual shows precisely what changed.</p>
+
+  <p>The test suite covers: every filter operator tested independently; nested AND/OR/NOT filter groups including deep nesting; every aggregate eligibility rule including boundary cases; every date granularity level; SCD temporal predicates; role-based join aliasing; expression metric expansion; inheritance merging; formula qualification with string literal preservation; model filter propagation; and time-period comparison expressions (YoY, MoM, QoQ).</p>
+
+  <div class="lesson">
+    <div class="lesson-num">ON THE TEST SUITE</div>
+    <div class="lesson-title">Tests are not a quality gate. They are what makes the model editable</div>
+    <p>The semantic layer has many interacting behaviors: inheritance, formula qualification, aggregate routing, join resolution, filter normalization, temporal logic. A change to one part often has non-obvious effects on another. Without exact-output tests, changes accumulate invisible regressions. With them, any regression shows up immediately as a specific diff on a specific test. The suite is the mechanism that makes it safe to iterate on a model that other people depend on.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 10: AI AGENTS          -->
+  <!-- ============================== -->
+
+  <h2 id="ai-agents">Serving AI agents</h2>
+
+  <p>An LLM asked to "show revenue by region" will generate SQL. Without grounding, that SQL is a plausible guess: it might pick the wrong revenue column, join to the wrong region table, or filter on a status value that doesn't exist. The semantic layer exists to prevent exactly this failure mode. It provides the structured context that turns a language model from a guess generator into a reliable query author.</p>
+
+  <h3>What the agent receives</h3>
+
+  <p>The planner, the agent that decomposes a user's question into sub-tasks, does <em>not</em> see the full model. It sees a <strong>lean YAML summary</strong> produced by a server-side function that flattens inherited models and strips everything the planner doesn't need to make a plan. Formulas, join paths, physical column names, and SQL aliases are deliberately omitted: the planner picks metrics and dimensions by name; the query worker (a separate agent, downstream) resolves them to SQL. This keeps the planner's prompt small and prevents it from inventing SQL-level decisions that belong to the engine.</p>
+
+  <p>The summary is rendered as YAML and cached into the planner's system prompt. Here is the exact shape served to the planner for SpeedDelivery's delivery-operations perspective:</p>
+
+  <div class="code-block">
+    <div class="code-block-label">Actual planner context (YAML, trimmed)</div>
+    <pre><span class="code-kw">perspective_id</span>: <span class="code-str">p_delivery_operations</span>
+<span class="code-kw">name</span>: <span class="code-str">Delivery Operations</span>
+<span class="code-kw">description</span>: <span class="code-str">Ops view of deliveries: volume, speed, cancellation.</span>
+<span class="code-kw">source_table</span>: <span class="code-str">analytics.delivery_fact</span>
+<span class="code-kw">date_field</span>: <span class="code-str">order_date</span>
+<span class="code-kw">requires_time_window</span>: true
+<span class="code-kw">models</span>: [<span class="code-str">delivery</span>, <span class="code-str">store</span>, <span class="code-str">zone</span>]
+
+<span class="code-kw">metrics</span>:
+  - <span class="code-kw">name</span>: <span class="code-str">total_revenue</span>
+    <span class="code-kw">description</span>: <span class="code-str">Sum of all order total amounts.</span>
+    <span class="code-kw">aliases</span>: [<span class="code-str">"gross revenue"</span>, <span class="code-str">"GMV"</span>]
+  - <span class="code-kw">name</span>: <span class="code-str">total_orders</span>
+    <span class="code-kw">description</span>: <span class="code-str">Count of all deliveries.</span>
+  - <span class="code-kw">name</span>: <span class="code-str">cancellation_rate</span>
+    <span class="code-kw">description</span>: <span class="code-str">Share of orders cancelled before completion.</span>
+
+<span class="code-kw">dimensions</span>:
+  - <span class="code-kw">name</span>: <span class="code-str">order_date</span>
+    <span class="code-kw">type</span>: <span class="code-str">date</span>
+    <span class="code-kw">description</span>: <span class="code-str">Date the order was placed.</span>
+  - <span class="code-kw">name</span>: <span class="code-str">delivery_status</span>
+    <span class="code-kw">description</span>: <span class="code-str">Current delivery status.</span>
+    <span class="code-kw">values</span>: [<span class="code-str">pending</span>, <span class="code-str">accepted</span>, <span class="code-str">in_transit</span>, <span class="code-str">delivered</span>, <span class="code-str">cancelled</span>]
+  - <span class="code-kw">name</span>: <span class="code-str">zone_name</span>
+    <span class="code-kw">description</span>: <span class="code-str">Delivery zone the order was fulfilled in.</span></pre>
+  </div>
+
+  <p>Every field in this payload is load-bearing:</p>
+
+  <ul style="font-family: var(--sans); font-size: 16px; line-height: 1.7; color: #2A2926; padding-left: 24px; margin-bottom: 24px;">
+    <li><code>requires_time_window</code> tells the planner whether it must emit an explicit date range on every query sub-task. If <code>true</code> and no window can be inferred from the user's question, the planner emits a clarifier; it does not invent a silent default.</li>
+    <li><code>aliases</code> let the planner resolve user phrasing: "show me GMV" resolves to <code>total_revenue</code> because <code>"GMV"</code> is declared as an alias.</li>
+    <li><code>values</code> on a dimension is the contract against hallucinated filter values. When the user says "cancelled deliveries", the planner's sub-task metadata uses the string <code>cancelled</code> verbatim, the exact value in the list, rather than guessing case or spelling.</li>
+    <li><code>type: date</code> on a dimension marks it as a valid time axis for granularity suffixes (<code>order_date__month</code>, <code>order_date__week</code>) and for the perspective's date field.</li>
+  </ul>
+
+  <p>What's deliberately <em>not</em> in the payload: SQL formulas, physical column names, table aliases, join paths, and default filters. The planner doesn't need them. It names what it wants, and the downstream query worker + engine resolve the rest. This separation is why the planner prompt stays under a few thousand tokens even on perspectives with dozens of metrics and joined entities.</p>
+
+  <h3>Disambiguation in practice</h3>
+
+  <p>When a user asks "what's our revenue?", the planner sees two candidates in its YAML: <code>total_revenue</code> with description "Sum of all order total amounts" and aliases <code>[gross revenue, GMV]</code>, and <code>net_revenue</code> with description "Revenue after platform fees and driver payouts" and aliases <code>[take rate revenue]</code>. The description plus alias list is what resolves the ambiguity: "GMV" routes cleanly to <code>total_revenue</code>, "take rate" to <code>net_revenue</code>. When the user's wording matches neither well, the planner emits a clarifier rather than guessing. The same pattern applies across every ambiguous concept in the model: <code>active_users</code> vs <code>engaged_users</code>, <code>order_date</code> vs <code>delivery_date</code>, <code>consumer_region</code> vs <code>store_region</code>.</p>
+
+  <p>Richer governance metadata, semantic types and free-text disambiguation hints, lives in the full model layer and is available to downstream agents and UI surfaces (e.g., a model-browser tooltip). It is intentionally kept out of the planner's prompt context to keep that prompt lean; the planner's job is to pick <em>which</em> metric, not to reason about aggregation semantics.</p>
+
+  <h3>Canonical values prevent hallucination</h3>
+
+  <p>When the user says "show me cancelled orders", the planner needs to produce a filter. Without canonical values, it might emit <code>'Cancelled'</code>, <code>'CANCELLED'</code>, or <code>'canceled'</code>, any of which would return zero rows with no error. With canonical values declared on the dimension (<code>[pending, accepted, in_transit, delivered, cancelled]</code>) and included in the YAML summary above, the planner's sub-task metadata carries <code>cancelled</code> verbatim. The values are not suggestions; they are the contract between the model and every consumer of it, human or machine.</p>
+
+  <div class="callout">
+    <div class="callout-label">The AI advantage of a semantic layer</div>
+    <p>A semantic layer built for human analysts becomes dramatically more valuable when AI agents enter the picture. Every piece of metadata that helps a human choose the right metric (descriptions, aliases, canonical values) helps an LLM make the same choice. The investment in governing your metrics pays off twice: once for your team, and again for every AI system that consumes the model.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 11: ANTI-PATTERNS      -->
+  <!-- ============================== -->
+
+  <h2 id="anti-patterns">Common anti-patterns</h2>
+
+  <p>Building a semantic layer is straightforward. Building one that stays maintainable as it grows is harder. These are the patterns that cause the most pain, observed across multiple implementations.</p>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 01</div>
+    <div class="lesson-title">Deep inheritance chains</div>
+    <p>A model that inherits from a model that inherits from a model creates resolution ambiguity and makes debugging impossible. The three-level limit (dimension &rarr; core &rarr; perspective) exists for a reason. If you find yourself wanting a fourth level, you're solving an organizational problem with a technical mechanism. Flatten the hierarchy and use explicit composition instead.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 02</div>
+    <div class="lesson-title">Premature aggregate optimization</div>
+    <p>Building aggregates before you understand query patterns leads to aggregates that don't match real usage. The eligibility check will route around them, and you'll have paid the ETL cost for nothing. Start with the fact table. Instrument which queries are slow. Build aggregates for the patterns that actually occur, with the dimensions and filters that users actually apply.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 03</div>
+    <div class="lesson-title">Duplicating definitions across models</div>
+    <p>Two models that both define <code>total_revenue</code> with slightly different formulas will produce different numbers for the same question. This is the original problem the semantic layer was built to solve. If you find yourself copying a metric definition, stop. Extract it to a shared model and inherit from there. One definition, one formula, one truth.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 04</div>
+    <div class="lesson-title">Skipping canonical values</div>
+    <p>Every enumerated column should declare its valid values. Skipping this step saves five minutes during model authoring and costs hours when a filter silently returns zero rows, or an AI agent hallucinates a value that doesn't exist. Canonical values are not optional metadata; they are the contract that makes filters reliable.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 05</div>
+    <div class="lesson-title">Mixing physical and model concerns</div>
+    <p>A metric formula that includes a hardcoded table name, or a model that references a column not declared in the physical layer, breaks the separation that makes the system maintainable. The physical layer owns structure. The model layer owns meaning. When they bleed into each other, schema changes become metric changes, and the whole point of the separation is lost.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 06</div>
+    <div class="lesson-title">Testing for presence instead of correctness</div>
+    <p>A test that asserts the output "contains SELECT" will pass for almost any generated SQL, correct or not. Tests must assert exact output. The cost is more verbose test cases. The benefit is that any regression (a wrong alias, a missing join, a misplaced filter) shows up immediately as a failing test with a clear diff.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 07</div>
+    <div class="lesson-title">Not treating the model as code</div>
+    <p>A semantic layer that bypasses code review is a semantic layer that accumulates silent errors. Every change to a metric formula, a join declaration, or a canonical value list should go through a pull request, be reviewed by someone who understands the business domain, and be validated by the test suite before merge. The model is code. Treat it like code.</p>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-num">ANTI-PATTERN 08</div>
+    <div class="lesson-title">Shipping the model without earning trust</div>
+    <p>The most common failure mode is not technical: the model exists, it works, and analysts keep writing raw SQL anyway. Trust has to be earned. Seed the model with a small number of <em>verified</em> or <em>gold</em> metrics that match an existing, trusted dashboard exactly. Numbers have to reconcile to the cent. Pair early adopters with a reviewer who can fix gaps in hours, not weeks. Make the generated SQL visible to users, not hidden behind an API. Analysts trust what they can read. Adoption is a process, not a launch.</p>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 12: ALTERNATIVES       -->
+  <!-- ============================== -->
+
+  <h2 id="alternatives">How this compares to alternatives</h2>
+
+  <p>Several tools occupy the semantic layer space. Each makes different trade-offs. Understanding where they differ helps clarify what this implementation prioritizes.</p>
+
+  <div class="table-scroll">
+    <table class="rule-table">
+      <thead>
+        <tr><th>Tool</th><th>Primary focus</th><th>Trade-off</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>dbt Semantic Layer (MetricFlow)</strong></td>
+          <td>Metrics defined alongside dbt models; served via a query API. Strong dbt-native workflow; metrics referenceable from BI tools.</td>
+          <td>Centered on metrics, not the full entity/perspective/inheritance graph. Aggregate routing and governance metadata (disambiguation hints, certification) are lighter than what this article describes.</td>
+        </tr>
+        <tr>
+          <td><strong>LookML (Looker)</strong></td>
+          <td>Tightly coupled semantic layer and BI tool. Explores, dashboards, and metrics all defined in one system.</td>
+          <td>Vendor lock-in. The semantic layer only serves Looker; other tools must query raw tables or duplicate definitions.</td>
+        </tr>
+        <tr>
+          <td><strong>Cube</strong></td>
+          <td>API-first semantic layer. Exposes metrics via REST/GraphQL/SQL. Strong caching and pre-aggregation.</td>
+          <td>Less emphasis on governance metadata (disambiguation hints, certification). Focused on serving applications, not analyst exploration.</td>
+        </tr>
+        <tr>
+          <td><strong>Malloy</strong></td>
+          <td>A new query language where entities, joins, and measures are first-class, not bolted on. Compiles to SQL.</td>
+          <td>A language, not a platform: you adopt a new syntax instead of declarative YAML, and governance/aggregate-routing are outside the language's scope.</td>
+        </tr>
+        <tr>
+          <td><strong>AtScale</strong></td>
+          <td>Enterprise semantic layer with MDX/DAX compatibility. Designed for large organizations with existing BI investments.</td>
+          <td>Proprietary. Heavy infrastructure requirements. Optimized for backward compatibility with legacy BI tools.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>What this implementation prioritizes</h3>
+
+  <p><strong>Two-layer separation.</strong> Physical schema and business model are explicitly decoupled. Schema changes break at load time, not silently at query time. Most alternatives blur this boundary.</p>
+
+  <p><strong>AI-native metadata.</strong> Disambiguation hints, semantic types, and canonical values are first-class fields, not afterthoughts. The model is designed to be consumed by LLMs as much as by humans.</p>
+
+  <p><strong>Aggregate routing with safety guarantees.</strong> Pre-aggregated tables are declared with content filters and eligibility rules. The engine proves safety before routing; it never guesses. Most alternatives either skip aggregates entirely or require manual routing decisions.</p>
+
+  <p><strong>Exact-output testing.</strong> The test suite asserts precise SQL for every scenario. Regressions are caught as diffs, not as user-reported bugs weeks later.</p>
+
+  <p><strong>No vendor lock-in.</strong> The model is YAML files. The engine is a pure function. You can swap the query executor, change your warehouse, or integrate with any BI tool without rewriting definitions.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- ============================== -->
+  <!-- SECTION 13: GETTING STARTED    -->
+  <!-- ============================== -->
+
+  <h2 id="getting-started">Getting started</h2>
+
+  <p>You don't need to model your entire warehouse before the semantic layer provides value. Start small, prove the pattern, then expand. Here's the path that works.</p>
+
+  <ul class="step-list">
+    <li>
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Pick one entity</div>
+        <div class="step-desc">Choose a single fact table that your team queries frequently. Orders, transactions, events: something with clear business meaning and enough complexity to be interesting. Don't start with a dimension table; start with the thing people actually ask questions about.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">Define the physical layer first</div>
+        <div class="step-desc">Declare the table, its columns, types, and primary key. For any enumerated column (status, category, tier), list the canonical values. This is the foundation everything else builds on. Get it right before moving to the model layer.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Add three metrics</div>
+        <div class="step-desc">Not thirty. Three. Pick the metrics your team asks about most: a count, a sum, and a ratio. Define each with a formula, semantic type, and disambiguation hint. Write exact-output tests for each. Ship it.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">Add one relationship</div>
+        <div class="step-desc">Pick the most common dimension join, probably a customer, store, or product table. Declare the relationship in the physical layer. Add an <code>inherits</code> entry to the model. Verify the join resolves correctly in generated SQL.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <div class="step-title">Use it for a week</div>
+        <div class="step-desc">Run real queries against the model. Note what's missing: metrics you need, dimensions you expected, filters that don't exist. This feedback is more valuable than any upfront design session. Let usage drive expansion.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">06</div>
+      <div class="step-content">
+        <div class="step-title">Expand incrementally</div>
+        <div class="step-desc">Add metrics as teams request them. Add relationships as queries require them. Build aggregates only after you've identified slow query patterns. Every addition goes through PR review and the test suite. The model grows with demand, not ahead of it.</div>
+      </div>
+    </li>
+  </ul>
+
+  <h3>File structure that scales</h3>
+
+  <div class="code-block">
+    <div class="code-block-label">Recommended directory layout</div>
+    <pre><span class="code-kw">semantic_layer/</span>
+  <span class="code-kw">physical/</span>                   <span class="code-cm"># warehouse structure</span>
+    tables/
+      delivery_fact.yaml
+      consumer_dim.yaml
+      store_dim.yaml
+    relationships/
+      delivery_fact__consumer_dim.yaml
+      delivery_fact__store_dim.yaml
+
+  <span class="code-kw">models/</span>                     <span class="code-cm"># business meaning</span>
+    dimensions/               <span class="code-cm"># L1: reusable dimension entities</span>
+      consumer.yaml
+      store.yaml
+    core/                     <span class="code-cm"># L2: fact-based entities</span>
+      delivery.yaml
+    perspectives/             <span class="code-cm"># L3: team-specific views</span>
+      delivery_operations.yaml
+      delivery_finance.yaml
+
+  <span class="code-kw">tests/</span>                      <span class="code-cm"># exact-output test cases</span>
+    test_delivery_metrics.py
+    test_aggregate_routing.py
+    test_inheritance.py</pre>
+  </div>
+
+  <p>Physical and model layers live in separate directories. Within models, the three inheritance levels (dimensions, core, perspectives) are explicit in the folder structure. Tests live alongside the definitions they validate. When someone asks "where is the revenue metric defined?", the answer is discoverable from the directory layout alone.</p>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <h2>A model worth trusting</h2>
+
+  <p>Every piece described here (entity definitions, relationship declarations, disambiguation hints, model filters, aggregate sources, inheritance chains) exists to answer the same question: <em>why did this query produce this number?</em></p>
+
+  <p>The physical layer says which columns the data came from. The model layer says what they mean. The formula qualification pass shows how metric formulas map to table columns. The aggregate content filters document which rows are present. The SCD declarations show how historical joins are resolved. The test suite defines what "correct" looks like for every combination of these behaviors.</p>
+
+  <p>An analytics system that can answer "why?" is one that people will actually use to make decisions, and come back to investigate when a number surprises them. That is what a semantic layer is for.</p>
+
+  <p style="text-align: center; margin-top: 48px; font-family: var(--sans); font-size: 14px; color: var(--muted);">Next: <a href="semantic-layer-evolution.html" style="color: var(--accent);">How SpeedDelivery's semantic layer detects schema drift and keeps itself current &rarr;</a></p>
+
+</div>
+
+<div class="footer">
+  <p>Semantic DataXpress: a governed semantic layer that transforms warehouse schemas into business truth.</p>
+  <p style="margin-top: 16px;"><a href="#" style="color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: 12px; letter-spacing: 1px;">BACK TO TOP &uarr;</a></p>
+</div>
+
+<script>
+window.addEventListener('scroll', function() {
+  var scrollTop = window.scrollY;
+  var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = (scrollTop / docHeight) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+});
+</script>
+
+</body>
+</html>
