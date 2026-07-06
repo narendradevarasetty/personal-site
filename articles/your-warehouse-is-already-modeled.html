@@ -40,6 +40,19 @@ body {
   text-align: center;
 }
 
+.back-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(244,243,239,0.4);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 40px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: rgba(244,243,239,0.7); }
+
 .header-label {
   font-family: var(--mono);
   font-size: 11px;
@@ -566,6 +579,7 @@ code {
 <div class="progress-bar" id="progressBar"></div>
 
 <div class="header">
+  <a href="../index.html" class="back-link">&larr; All Articles</a>
   <div class="header-label">Semantic DataXpress &nbsp;&middot;&nbsp; Data Modeling</div>
   <h1>Your Warehouse Is Already Modeled. <em>Stop Re-Modeling It.</em></h1>
   <p class="header-sub">The hidden tax of modern semantic layers, and what it looks like to skip the bill.</p>
